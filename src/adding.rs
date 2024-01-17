@@ -29,7 +29,7 @@ impl<T: Float + Ln2> LogProb<T> {
             x + T::LN_2
         }
     }
-    /// Add log probabilities safely.
+    /// Adds `[LogProb]` as raw probabilities and return the new log probability.
     #[inline(always)]
     pub fn add_log_prob(
         &self,
@@ -39,7 +39,7 @@ impl<T: Float + Ln2> LogProb<T> {
         Ok(LogProb::new(Self::add_log_prob_internal(self.0, y))?)
     }
 
-    /// Add log probabilities but clamping at 0.0.
+    /// Adds log probabilities but clamping at 0.0.
     #[inline(always)]
     pub fn add_log_prob_clamped(&self, y: LogProb<T>) -> LogProb<T> {
         match self.add_log_prob(y) {
@@ -48,7 +48,7 @@ impl<T: Float + Ln2> LogProb<T> {
         }
     }
 
-    /// Add log probabilities and return a float (so can be greater than 0.0).
+    /// Adds log probabilities and return a float (so can be greater than 0.0).
     #[inline(always)]
     pub fn add_log_prob_float(&self, y: LogProb<T>) -> T {
         Self::add_log_prob_internal(self.0, y.0)

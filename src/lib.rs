@@ -106,7 +106,7 @@ mod math;
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
 #[repr(transparent)]
 
-///This is the main struct that can only float values that correspond to negative log
+///Struct that can only hold float values that correspond to negative log
 ///probabilities.
 pub struct LogProb<T>(T);
 pub use adding::{log_sum_exp, log_sum_exp_clamped, log_sum_exp_float, LogSumExp};

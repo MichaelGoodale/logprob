@@ -1,5 +1,5 @@
 use std::error::Error;
-/// An error for when a LogProb is passed a value that isn't negative.
+/// An error for when a [`LogProb`] is passed a value that isn't negative.
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct FloatIsNanOrPositive;
 
@@ -11,7 +11,7 @@ impl std::fmt::Display for FloatIsNanOrPositive {
     }
 }
 
-/// An error for when a LogProb is passed a value that isn't negative.
+/// An error for when a [`LogProb`] is passed a value that isn't negative.
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct ProbabilitiesSumToGreaterThanOne;
 
@@ -29,7 +29,7 @@ impl From<FloatIsNanOrPositive> for ProbabilitiesSumToGreaterThanOne {
     }
 }
 
-/// An error for when a logprob is multiplied by zero.
+/// An error for when a [`LogProb`] is multiplied by zero.
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct MultiplicandIsZero;
 
