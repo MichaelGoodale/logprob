@@ -1,4 +1,4 @@
-//! This library defines a basic [`LogProb`] struct which stores a float. The struct is designed so
+//! This crate defines a basic [`LogProb`] wrapper for floats. The struct is designed so
 //! that only values that are coherent for a log-probability are acceptable. This means that
 //! [`LogProb`] can store:
 //!     - Any finite negative float value (e.g. -0.23, -32535.05, -66.0).
