@@ -3,11 +3,7 @@ use std::error::Error;
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct FloatIsNanOrPositive;
 
-impl Error for FloatIsNanOrPositive {
-    fn description(&self) -> &str {
-        "LogProb constructed with positive or NaN value"
-    }
-}
+impl Error for FloatIsNanOrPositive {}
 
 impl std::fmt::Display for FloatIsNanOrPositive {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -19,11 +15,7 @@ impl std::fmt::Display for FloatIsNanOrPositive {
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct ProbabilitiesSumToGreaterThanOne;
 
-impl Error for ProbabilitiesSumToGreaterThanOne {
-    fn description(&self) -> &str {
-        "The sum is greater than 1.0 (improper distribution)"
-    }
-}
+impl Error for ProbabilitiesSumToGreaterThanOne {}
 
 impl std::fmt::Display for ProbabilitiesSumToGreaterThanOne {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -41,11 +33,7 @@ impl From<FloatIsNanOrPositive> for ProbabilitiesSumToGreaterThanOne {
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct MultiplicandIsZero;
 
-impl Error for MultiplicandIsZero {
-    fn description(&self) -> &str {
-        "LogProb cannot be multiplied by zero"
-    }
-}
+impl Error for MultiplicandIsZero {}
 
 impl std::fmt::Display for MultiplicandIsZero {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
