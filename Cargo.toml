@@ -7,7 +7,7 @@ description = "A wrapper around floats to handle log probabilities"
 readme = "README.md"
 repository = "https://github.com/michaelgoodale/logprob/"
 license = "MIT OR Apache-2.0"
-keywords = ["probability", "scientific computing", "machine learning"]
+keywords = ["probability", "scientific-computing", "machine-learning"]
 categories = ["science", "simulation", "mathematics"]
 
 [dependencies]
