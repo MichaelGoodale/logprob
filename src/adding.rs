@@ -128,7 +128,7 @@ pub trait LogSumExp: Iterator {
     ///Adds up an iterator of [`LogProb`] (as raw probabilities) and returns a new `Result<LogProb,
     ///ProbabilitiesSumToGreaterThanOne>`. Will only return `Ok` if the sum could be a valid
     ///[`LogProb`]. It does not allocate a vector.
-    fn log_sum_exp<T: Float + Ln2, L: Borrow<LogProb<T>>>(
+    fn log_sum_exp_no_alloc<T: Float + Ln2, L: Borrow<LogProb<T>>>(
         mut self,
     ) -> Result<LogProb<T>, ProbabilitiesSumToGreaterThanOne>
     where
@@ -142,8 +142,8 @@ pub trait LogSumExp: Iterator {
     }
 
     ///Adds up an iterator of [`LogProb`] (as raw probabilities) and returns a new [`LogProb`] clamping values greater than 0.0.
-    ///Will only return `Ok` if the sum could be a valid [`LogProb`]. It does not allocate a vector.
-    fn log_sum_exp_clamped<T: Float + Ln2, L: Borrow<LogProb<T>>>(mut self) -> LogProb<T>
+    ///Will only return `Ok` if the sum could be a valid [`LogProb`]. It does not allocate a vector and will often be faster than [`log_sum_exp_clamped`] if you expect there to be clamping as the iterator can short-circuit.
+    fn log_sum_exp_clamped_no_alloc<T: Float + Ln2, L: Borrow<LogProb<T>>>(mut self) -> LogProb<T>
     where
         Self: Sized,
         Self: Iterator<Item = L>,
@@ -161,7 +161,7 @@ pub trait LogSumExp: Iterator {
 
     ///Adds up an iterator of [`LogProb`] (as raw probabilities) and returns a float with their sum,
     ///regardless of if it would be a valid [`LogProb`]. It does not allocate a vector.
-    fn log_sum_exp_float<T: Float + Ln2, L: Borrow<LogProb<T>>>(mut self) -> T
+    fn log_sum_exp_float_no_alloc<T: Float + Ln2, L: Borrow<LogProb<T>>>(mut self) -> T
     where
         Self: Sized,
         Self: Iterator<Item = L>,
@@ -179,8 +179,8 @@ pub trait LogSumExp: Iterator {
 
     ///Adds up an iterator of [`LogProb`] (as raw probabilities) and returns a new `Result<LogProb,
     ///ProbabilitiesSumToGreaterThanOne>`. Will only return `Ok` if the sum could be a valid
-    ///[`LogProb`]. It does allocate a vector, but may be faster in certain scenarios.
-    fn log_sum_exp_allocate<T: Float + Ln2 + std::iter::Sum, L: Borrow<LogProb<T>>>(
+    ///[`LogProb`]. It does allocate a vector, but will usually be faster for n>10.
+    fn log_sum_exp<T: Float + Ln2 + std::iter::Sum, L: Borrow<LogProb<T>>>(
         self,
     ) -> Result<LogProb<T>, ProbabilitiesSumToGreaterThanOne>
     where
@@ -191,8 +191,9 @@ pub trait LogSumExp: Iterator {
     }
 
     ///Adds up an iterator of [`LogProb`] (as raw probabilities) and returns a float with their sum,
-    ///regardless of if it would be a valid [`LogProb`]. It does allocate a vector, but may be faster in certain scenarios.
-    fn log_sum_exp_clamped_allocate<T: Float + Ln2 + std::iter::Sum, L: Borrow<LogProb<T>>>(
+    ///regardless of if it would be a valid [`LogProb`]. It does allocate a vector, but is usally
+    ///slower than [`Self::log_sum_exp_clamped_no_alloc`] if you expect clamping.
+    fn log_sum_exp_clamped<T: Float + Ln2 + std::iter::Sum, L: Borrow<LogProb<T>>>(
         self,
     ) -> LogProb<T>
     where
@@ -206,8 +207,8 @@ pub trait LogSumExp: Iterator {
     }
 
     ///Adds up an iterator of [`LogProb`] (as raw probabilities) and returns a float with their sum,
-    ///regardless of if it would be a valid [`LogProb`]. It does allocate a vector, but may be faster in certain scenarios.
-    fn log_sum_exp_float_allocate<T: Float + Ln2 + std::iter::Sum, L: Borrow<LogProb<T>>>(self) -> T
+    ///regardless of if it would be a valid [`LogProb`]. It does allocate a vector, but will usually be faster for n>10.
+    fn log_sum_exp_float<T: Float + Ln2 + std::iter::Sum, L: Borrow<LogProb<T>>>(self) -> T
     where
         Self: Sized,
         Self: Iterator<Item = L>,

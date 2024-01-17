@@ -76,6 +76,7 @@
 //! approx::assert_relative_eq!(z, (1.25_f64).ln());
 //!
 //! ```
+//!
 
 #![warn(
     anonymous_parameters,

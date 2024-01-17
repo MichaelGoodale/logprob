@@ -114,15 +114,22 @@ fn add_probs_test() -> Result<()> {
         .map(LogProb::from_raw_prob)
         .map(|x| x.unwrap())
         .into_iter()
-        .log_sum_exp()?;
+        .log_sum_exp_no_alloc()?;
     approx::assert_relative_eq!(sum.into_inner(), LogProb::new(0.0)?.into_inner());
 
     let sum = [0.5, 0.2, 0.3]
         .map(LogProb::from_raw_prob)
         .map(|x| x.unwrap())
         .into_iter()
-        .log_sum_exp_allocate()?;
+        .log_sum_exp()?;
     approx::assert_relative_eq!(sum.into_inner(), LogProb::new(0.0)?.into_inner());
+
+    assert!([0.5, 0.5, 0.3]
+        .map(LogProb::from_raw_prob)
+        .map(|x| x.unwrap())
+        .into_iter()
+        .log_sum_exp_no_alloc()
+        .is_err());
 
     assert!([0.5, 0.5, 0.3]
         .map(LogProb::from_raw_prob)
@@ -131,53 +138,46 @@ fn add_probs_test() -> Result<()> {
         .log_sum_exp()
         .is_err());
 
-    assert!([0.5, 0.5, 0.3]
-        .map(LogProb::from_raw_prob)
-        .map(|x| x.unwrap())
-        .into_iter()
-        .log_sum_exp_allocate()
-        .is_err());
-
     let sum = [0.5, 0.5, 0.5]
         .map(LogProb::from_raw_prob)
         .map(|x| x.unwrap())
         .into_iter()
-        .log_sum_exp_clamped();
+        .log_sum_exp_clamped_no_alloc();
     approx::assert_relative_eq!(sum.into_inner(), 0.0);
 
     let sum = [0.5, 0.5, 0.5]
         .map(LogProb::from_raw_prob)
         .map(|x| x.unwrap())
         .into_iter()
-        .log_sum_exp_clamped_allocate();
+        .log_sum_exp_clamped();
     approx::assert_relative_eq!(sum.into_inner(), 0.0);
 
     let sum = [0.5, 0.3, 0.0, 0.0]
         .map(LogProb::from_raw_prob)
         .map(|x| x.unwrap())
         .into_iter()
-        .log_sum_exp_clamped();
+        .log_sum_exp_clamped_no_alloc();
     approx::assert_relative_eq!(sum.into_inner(), 0.8_f64.ln());
 
     let sum = [0.5, 0.3, 0.0, 0.0]
         .map(LogProb::from_raw_prob)
         .map(|x| x.unwrap())
         .into_iter()
-        .log_sum_exp_clamped_allocate();
+        .log_sum_exp_clamped();
     approx::assert_relative_eq!(sum.into_inner(), 0.8_f64.ln());
 
     let sum = [0.5, 0.5, 0.5, 0.0]
         .map(LogProb::from_raw_prob)
         .map(|x| x.unwrap())
         .into_iter()
-        .log_sum_exp_float();
+        .log_sum_exp_float_no_alloc();
     approx::assert_relative_eq!(sum, 1.5_f64.ln());
 
     let sum = [0.5, 0.5, 0.5, 0.0]
         .map(LogProb::from_raw_prob)
         .map(|x| x.unwrap())
         .into_iter()
-        .log_sum_exp_float_allocate();
+        .log_sum_exp_float();
     approx::assert_relative_eq!(sum, 1.5_f64.ln());
 
     let v: Vec<_> = [0.5, 0.5, 0.5]
@@ -198,22 +198,22 @@ fn add_probs_test() -> Result<()> {
 
     let v: Vec<LogProb<f64>> = vec![];
     assert_eq!(log_sum_exp(&v)?, LogProb::new(f64::NEG_INFINITY)?);
-    assert_eq!(v.iter().log_sum_exp()?, LogProb::new(f64::NEG_INFINITY)?);
+    assert_eq!(
+        v.iter().log_sum_exp_no_alloc()?,
+        LogProb::new(f64::NEG_INFINITY)?
+    );
     assert_eq!(log_sum_exp_clamped(&v), LogProb::new(f64::NEG_INFINITY)?);
     assert_eq!(
-        v.iter().log_sum_exp_clamped(),
+        v.iter().log_sum_exp_clamped_no_alloc(),
         LogProb::new(f64::NEG_INFINITY)?
     );
     assert_eq!(log_sum_exp_float(&v), f64::NEG_INFINITY);
-    assert_eq!(v.iter().log_sum_exp_float(), f64::NEG_INFINITY);
+    assert_eq!(v.iter().log_sum_exp_float_no_alloc(), f64::NEG_INFINITY);
 
+    assert_eq!(v.iter().log_sum_exp()?, LogProb::new(f64::NEG_INFINITY)?);
+    assert_eq!(v.iter().log_sum_exp_float(), f64::NEG_INFINITY);
     assert_eq!(
-        v.iter().log_sum_exp_allocate()?,
-        LogProb::new(f64::NEG_INFINITY)?
-    );
-    assert_eq!(v.iter().log_sum_exp_float_allocate(), f64::NEG_INFINITY);
-    assert_eq!(
-        v.iter().log_sum_exp_clamped_allocate(),
+        v.iter().log_sum_exp_clamped(),
         LogProb::new(f64::NEG_INFINITY)?
     );
     Ok(())
