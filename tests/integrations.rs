@@ -66,6 +66,9 @@ fn multiplication() -> Result<()> {
     let x: LogProb<f64> = 4_u8 * LogProb::new(-3.0)?;
     assert_eq!(x, LogProb::new(-12.0)?);
 
+    let x: LogProb<f64> = 0_u8 * LogProb::new(-3.0)?;
+    assert_eq!(x, LogProb::new(0.0)?);
+
     #[allow(clippy::op_ref)]
     let x: LogProb<f64> = &4_u8 * LogProb::new(-3.0)?;
     assert_eq!(x, LogProb::new(-12.0)?);

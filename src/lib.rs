@@ -20,7 +20,7 @@
 //! assert_eq!(z, LogProb::from_raw_prob(0.25).unwrap());
 //! ```
 //!
-//! It is also possible to take product of a [`LogProb`] and a non-zero unsigned integer, which
+//! It is also possible to take product of a [`LogProb`] and an unsigned integer, which
 //! corresponds to taking the exponent of the log-probability to the power of the integer.
 //! ```
 //! # use logprob::LogProb;
