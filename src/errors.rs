@@ -28,15 +28,3 @@ impl From<FloatIsNanOrPositive> for ProbabilitiesSumToGreaterThanOne {
         ProbabilitiesSumToGreaterThanOne
     }
 }
-
-/// An error for when a [`LogProb`](super::LogProb)  is multiplied by zero.
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
-pub struct MultiplicandIsZero;
-
-impl Error for MultiplicandIsZero {}
-
-impl std::fmt::Display for MultiplicandIsZero {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "LogProb cannot be multiplied by zero")
-    }
-}

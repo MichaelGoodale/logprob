@@ -13,7 +13,7 @@ The crate is intended for careful implementations of computations involving log-
 ## Features:
 
 - A way to add `LogProb`s (equivalent take the product of their corresponding raw probabilities)
-- Take the product of a `LogProb` and a non-zero unsigned integer (e.g. equivalent to p^n).
+- Take the product of a `LogProb` and an unsigned integer (e.g. equivalent to p^n).
 - `Ord` and `Eq` trait on `LogProb` as there is no `NaN`.
 - A relatively efficient implementation of [LogSumExp](https://en.wikipedia.org/wiki/LogSumExp) for slices and iterators.
 

@@ -21,17 +21,13 @@
 //! ```
 //!
 //! It is also possible to take product of a [`LogProb`] and a non-zero unsigned integer, which
-//! corresponds to taking the exponent of the log-probability to the power of the integer. Note that the product produces a [`MultiplicandIsZero`] error if the integer is equal to
-//! zero as there is no obvious semantic meaning of a probability occurring 0 times.
+//! corresponds to taking the exponent of the log-probability to the power of the integer.
 //! ```
 //! # use logprob::LogProb;
 //! let x = LogProb::from_raw_prob(0.5_f64).unwrap();
 //! let y: u8 = 2;
-//! let z = (x * y).unwrap();
+//! let z = x * y;
 //! assert_eq!(z, LogProb::from_raw_prob(0.25).unwrap());
-//!
-//! let y: u8 = 0;
-//! assert!((x*y).is_err());
 //! ```
 //!
 //!Finally, the crate also includes reasonably efficient implementations of
@@ -99,7 +95,7 @@ use std::borrow::Borrow;
 
 use num_traits::Float;
 mod errors;
-pub use errors::{FloatIsNanOrPositive, MultiplicandIsZero, ProbabilitiesSumToGreaterThanOne};
+pub use errors::{FloatIsNanOrPositive, ProbabilitiesSumToGreaterThanOne};
 mod adding;
 mod math;
 
@@ -135,6 +131,28 @@ impl<T: Float> LogProb<T> {
     #[inline]
     pub fn into_inner(self) -> T {
         self.0
+    }
+
+    /// Get the equivalent non-log probability
+    /// ```
+    /// # use logprob::LogProb;
+    /// let x = LogProb::from_raw_prob(0.25).unwrap();
+    /// assert_eq!(x.raw_prob(), 0.25);
+    /// ```
+    #[inline]
+    pub fn raw_prob(&self) -> T {
+        self.0.exp()
+    }
+
+    /// Calculates the probability of the complement of this log-probability
+    /// ```
+    /// # use logprob::LogProb;
+    /// let x = LogProb::from_raw_prob(0.25).unwrap();
+    /// let y = LogProb::from_raw_prob(0.75).unwrap();
+    /// assert_eq!(x.opposite_prob(), y);
+    /// ```
+    pub fn opposite_prob(&self) -> Self {
+        LogProb((-self.0.exp()).ln_1p())
     }
 }
 

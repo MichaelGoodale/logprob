@@ -1,5 +1,4 @@
 use super::LogProb;
-use crate::errors::MultiplicandIsZero;
 use std::ops::{Add, AddAssign, Mul};
 
 impl<T: Add> Add for LogProb<T> {
@@ -65,112 +64,72 @@ impl<'a, T: AddAssign<&'a T>> AddAssign<&'a Self> for LogProb<T> {
 macro_rules! impl_mul {
     ($unsigned: ty, $float: ty) => {
         impl Mul<LogProb<$float>> for $unsigned {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: LogProb<$float>) -> Self::Output {
-                match self {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = self.into();
-                        Ok(LogProb(s * rhs.0))
-                    }
-                }
+                let s: $float = self.into();
+                LogProb(s * rhs.0)
             }
         }
 
         impl Mul<$unsigned> for LogProb<$float> {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: $unsigned) -> Self::Output {
-                match rhs {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = rhs.into();
-                        Ok(LogProb(s * self.0))
-                    }
-                }
+                let s: $float = rhs.into();
+                LogProb(s * self.0)
             }
         }
 
         impl<'a> Mul<&'a $unsigned> for LogProb<$float> {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: &'a $unsigned) -> Self::Output {
-                match rhs {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = (*rhs).into();
-                        Ok(LogProb(s * self.0))
-                    }
-                }
+                let s: $float = (*rhs).into();
+                LogProb(s * self.0)
             }
         }
 
         impl<'a> Mul<&'a LogProb<$float>> for $unsigned {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: &'a LogProb<$float>) -> Self::Output {
-                match self {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = self.into();
-                        Ok(LogProb(s * rhs.0))
-                    }
-                }
+                let s: $float = self.into();
+                LogProb(s * rhs.0)
             }
         }
 
         impl Mul<LogProb<$float>> for &$unsigned {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: LogProb<$float>) -> Self::Output {
-                match self {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = (*self).into();
-                        Ok(LogProb(s * rhs.0))
-                    }
-                }
+                let s: $float = (*self).into();
+                LogProb(s * rhs.0)
             }
         }
         impl Mul<$unsigned> for &LogProb<$float> {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: $unsigned) -> Self::Output {
-                match rhs {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = rhs.into();
-                        Ok(LogProb(s * self.0))
-                    }
-                }
+                let s: $float = rhs.into();
+                LogProb(s * self.0)
             }
         }
         impl Mul<&LogProb<$float>> for &$unsigned {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: &LogProb<$float>) -> Self::Output {
-                match self {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = (*self).into();
-                        Ok(LogProb(s * rhs.0))
-                    }
-                }
+                let s: $float = (*self).into();
+                LogProb(s * rhs.0)
             }
         }
 
         impl Mul<&$unsigned> for &LogProb<$float> {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: &$unsigned) -> Self::Output {
-                match rhs {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = (*rhs).into();
-                        Ok(LogProb(s * self.0))
-                    }
-                }
+                let s: $float = (*rhs).into();
+                LogProb(s * self.0)
             }
         }
     };
@@ -185,112 +144,72 @@ impl_mul!(u32, f64);
 macro_rules! impl_mul_lossy {
     ($unsigned: ty, $float: ty) => {
         impl Mul<LogProb<$float>> for $unsigned {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: LogProb<$float>) -> Self::Output {
-                match self {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = self as $float;
-                        Ok(LogProb(s * rhs.0))
-                    }
-                }
+                let s: $float = self as $float;
+                LogProb(s * rhs.0)
             }
         }
 
         impl Mul<$unsigned> for LogProb<$float> {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: $unsigned) -> Self::Output {
-                match rhs {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = rhs as $float;
-                        Ok(LogProb(s * self.0))
-                    }
-                }
+                let s: $float = rhs as $float;
+                LogProb(s * self.0)
             }
         }
 
         impl Mul<&$unsigned> for LogProb<$float> {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: &$unsigned) -> Self::Output {
-                match rhs {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = (*rhs) as $float;
-                        Ok(LogProb(s * self.0))
-                    }
-                }
+                let s: $float = (*rhs) as $float;
+                LogProb(s * self.0)
             }
         }
 
         impl Mul<&LogProb<$float>> for $unsigned {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: &LogProb<$float>) -> Self::Output {
-                match self {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = self as $float;
-                        Ok(LogProb(s * rhs.0))
-                    }
-                }
+                let s: $float = self as $float;
+                LogProb(s * rhs.0)
             }
         }
 
         impl Mul<LogProb<$float>> for &$unsigned {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: LogProb<$float>) -> Self::Output {
-                match self {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = (*self) as $float;
-                        Ok(LogProb(s * rhs.0))
-                    }
-                }
+                let s: $float = (*self) as $float;
+                LogProb(s * rhs.0)
             }
         }
         impl Mul<$unsigned> for &LogProb<$float> {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: $unsigned) -> Self::Output {
-                match rhs {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = rhs as $float;
-                        Ok(LogProb(s * self.0))
-                    }
-                }
+                let s: $float = rhs as $float;
+                LogProb(s * self.0)
             }
         }
         impl Mul<&LogProb<$float>> for &$unsigned {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: &LogProb<$float>) -> Self::Output {
-                match self {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = (*self) as $float;
-                        Ok(LogProb(s * rhs.0))
-                    }
-                }
+                let s: $float = (*self) as $float;
+                LogProb(s * rhs.0)
             }
         }
 
         impl Mul<&$unsigned> for &LogProb<$float> {
-            type Output = Result<LogProb<$float>, MultiplicandIsZero>;
+            type Output = LogProb<$float>;
 
             fn mul(self, rhs: &$unsigned) -> Self::Output {
-                match rhs {
-                    0 => Err(MultiplicandIsZero),
-                    _ => {
-                        let s: $float = (*rhs) as $float;
-                        Ok(LogProb(s * self.0))
-                    }
-                }
+                let s: $float = (*rhs) as $float;
+                LogProb(s * self.0)
             }
         }
     };

@@ -60,34 +60,34 @@ fn addition() -> Result<()> {
 
 #[test]
 fn multiplication() -> Result<()> {
-    let x: LogProb<f64> = (LogProb::new(-3.0)? * 4_u32)?;
+    let x: LogProb<f64> = LogProb::new(-3.0)? * 4_u32;
     assert_eq!(x, LogProb::new(-12.0)?);
 
-    let x: LogProb<f64> = (4_u8 * LogProb::new(-3.0)?)?;
-    assert_eq!(x, LogProb::new(-12.0)?);
-
-    #[allow(clippy::op_ref)]
-    let x: LogProb<f64> = (&4_u8 * LogProb::new(-3.0)?)?;
+    let x: LogProb<f64> = 4_u8 * LogProb::new(-3.0)?;
     assert_eq!(x, LogProb::new(-12.0)?);
 
     #[allow(clippy::op_ref)]
-    let x: LogProb<f64> = (&4_u8 * &LogProb::new(-3.0)?)?;
+    let x: LogProb<f64> = &4_u8 * LogProb::new(-3.0)?;
     assert_eq!(x, LogProb::new(-12.0)?);
 
     #[allow(clippy::op_ref)]
-    let x: LogProb<f64> = (4_u8 * &LogProb::new(-3.0)?)?;
+    let x: LogProb<f64> = &4_u8 * &LogProb::new(-3.0)?;
     assert_eq!(x, LogProb::new(-12.0)?);
 
     #[allow(clippy::op_ref)]
-    let x: LogProb<f64> = (LogProb::new(-3.0)? * &4_u8)?;
+    let x: LogProb<f64> = 4_u8 * &LogProb::new(-3.0)?;
     assert_eq!(x, LogProb::new(-12.0)?);
 
     #[allow(clippy::op_ref)]
-    let x: LogProb<f64> = (&LogProb::new(-3.0)? * &4_u8)?;
+    let x: LogProb<f64> = LogProb::new(-3.0)? * &4_u8;
     assert_eq!(x, LogProb::new(-12.0)?);
 
     #[allow(clippy::op_ref)]
-    let x: LogProb<f64> = (&LogProb::new(-3.0)? * 4_u8)?;
+    let x: LogProb<f64> = &LogProb::new(-3.0)? * &4_u8;
+    assert_eq!(x, LogProb::new(-12.0)?);
+
+    #[allow(clippy::op_ref)]
+    let x: LogProb<f64> = &LogProb::new(-3.0)? * 4_u8;
     assert_eq!(x, LogProb::new(-12.0)?);
     Ok(())
 }
