@@ -95,9 +95,13 @@ use std::borrow::Borrow;
 
 use num_traits::Float;
 mod errors;
-pub use errors::{FloatIsNanOrPositive, ProbabilitiesSumToGreaterThanOne};
+pub use errors::{
+    FloatIsNanOrPositive, FloatIsNanOrPositiveInfinity, ProbabilitiesSumToGreaterThanOne,
+};
 mod adding;
 mod math;
+mod softmax;
+pub use softmax::{softmax, Softmax};
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
 #[repr(transparent)]

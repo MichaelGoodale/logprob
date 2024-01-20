@@ -1,5 +1,7 @@
 use anyhow::Result;
-use logprob::{log_sum_exp, log_sum_exp_clamped, log_sum_exp_float, LogProb, LogSumExp};
+use logprob::{
+    log_sum_exp, log_sum_exp_clamped, log_sum_exp_float, softmax, LogProb, LogSumExp, Softmax,
+};
 
 #[test]
 fn basic_construction() -> Result<()> {
@@ -219,5 +221,30 @@ fn add_probs_test() -> Result<()> {
         v.iter().log_sum_exp_clamped(),
         LogProb::new(f64::NEG_INFINITY)?
     );
+    Ok(())
+}
+
+#[test]
+fn softmax_test() -> Result<()> {
+    let x: Vec<f64> = vec![0.5, -2.0, 5.];
+    let s: Vec<_> = softmax(&x)?.map(|x| x.into_inner()).collect();
+    assert_eq!(
+        s,
+        vec![
+            -4.511949201585065,
+            -7.011949201585065,
+            -0.011949201585064628
+        ]
+    );
+    let s_2: Vec<_> = x.into_iter().softmax()?.map(|x| x.into_inner()).collect();
+    assert_eq!(s, s_2);
+
+    let x: Vec<f64> = vec![];
+    let s: Vec<f64> = softmax(&x)?.map(|x| x.into_inner()).collect();
+    assert_eq!(x, s);
+    let x: Vec<f64> = vec![0.5, f64::INFINITY, 5.];
+    assert!(softmax(&x).is_err());
+    let x: Vec<f64> = vec![0.5, f64::NAN, 5.];
+    assert!(softmax(&x).is_err());
     Ok(())
 }

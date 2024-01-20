@@ -28,3 +28,15 @@ impl From<FloatIsNanOrPositive> for ProbabilitiesSumToGreaterThanOne {
         ProbabilitiesSumToGreaterThanOne
     }
 }
+
+/// An error for when a [`Softmax`] is passed a value that is NaN or infinity.
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub struct FloatIsNanOrPositiveInfinity;
+
+impl Error for FloatIsNanOrPositiveInfinity {}
+
+impl std::fmt::Display for FloatIsNanOrPositiveInfinity {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "LogProb constructed with positive or NaN value")
+    }
+}
