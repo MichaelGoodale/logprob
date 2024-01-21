@@ -20,7 +20,7 @@ categories = ["science", "simulation", "mathematics"]
 num-traits = "0.2.17"
 
 [dev-dependencies]
-divan = "0.1.8"
+divan = "0.1.11"
 anyhow = "1.0"
 approx = "0.5.1"
 rand = "0.8.5"

@@ -24,26 +24,26 @@ fn get_big_vector_overflow(n: u32) -> Vec<LogProb<f64>> {
 
 const SIZES: &[u32] = &[0, 1, 2, 5, 10, 20, 50, 100, 1000, 10_000];
 
-#[divan::bench(consts = SIZES)]
-fn allocate_log_exp<const N: u32>() -> LogProb<f64> {
-    divan::black_box(get_big_vector(N).into_iter())
+#[divan::bench(args = SIZES)]
+fn allocate_log_exp(n: u32) -> LogProb<f64> {
+    divan::black_box(get_big_vector(n).into_iter())
         .log_sum_exp()
         .unwrap()
 }
 
-#[divan::bench(consts = SIZES)]
-fn dont_allocate_log_exp<const N: u32>() -> LogProb<f64> {
-    divan::black_box(get_big_vector(N).into_iter())
+#[divan::bench(args = SIZES)]
+fn dont_allocate_log_exp(n: u32) -> LogProb<f64> {
+    divan::black_box(get_big_vector(n).into_iter())
         .log_sum_exp_no_alloc()
         .unwrap()
 }
 
-#[divan::bench(consts = SIZES)]
-fn allocate_log_exp_clamped<const N: u32>() -> LogProb<f64> {
-    divan::black_box(get_big_vector_overflow(N).into_iter()).log_sum_exp_clamped()
+#[divan::bench(args = SIZES)]
+fn allocate_log_exp_clamped(n: u32) -> LogProb<f64> {
+    divan::black_box(get_big_vector_overflow(n).into_iter()).log_sum_exp_clamped()
 }
 
-#[divan::bench(consts = SIZES)]
-fn dont_allocate_log_exp_clamped<const N: u32>() -> LogProb<f64> {
-    divan::black_box(get_big_vector_overflow(N).into_iter()).log_sum_exp_clamped_no_alloc()
+#[divan::bench(args = SIZES)]
+fn dont_allocate_log_exp_clamped(n: u32) -> LogProb<f64> {
+    divan::black_box(get_big_vector_overflow(n).into_iter()).log_sum_exp_clamped_no_alloc()
 }
