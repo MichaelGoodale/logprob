@@ -98,12 +98,13 @@ mod errors;
 pub use errors::{
     FloatIsNanOrPositive, FloatIsNanOrPositiveInfinity, ProbabilitiesSumToGreaterThanOne,
 };
+use serde::{Deserialize, Serialize};
 mod adding;
 mod math;
 mod softmax;
 pub use softmax::{softmax, Softmax};
 
-#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default, Serialize, Deserialize)]
 #[repr(transparent)]
 
 ///Struct that can only hold float values that correspond to negative log
