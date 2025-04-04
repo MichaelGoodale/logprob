@@ -105,10 +105,10 @@ mod softmax;
 pub use softmax::{softmax, Softmax};
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default, Serialize, Deserialize)]
-#[repr(transparent)]
 
 ///Struct that can only hold float values that correspond to negative log
 ///probabilities.
+#[repr(transparent)]
 pub struct LogProb<T>(T);
 pub use adding::{log_sum_exp, log_sum_exp_clamped, log_sum_exp_float, LogSumExp};
 
@@ -130,6 +130,17 @@ impl<T: Float> LogProb<T> {
         } else {
             Ok(LogProb(val))
         }
+    }
+
+    ///Constructs a new LogProb which corresponds to a probability of zero (e.g. neg infinity)
+    pub fn prob_of_zero() -> Self {
+        LogProb(T::neg_infinity())
+    }
+
+    ///Constructs a new LogProb which corresponds to a probability of one (e.g. the log prob is
+    ///equal to 0)
+    pub fn prob_of_one() -> Self {
+        LogProb(T::zero())
     }
 
     /// Gets out the value.

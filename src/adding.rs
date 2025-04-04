@@ -11,12 +11,12 @@ pub trait Ln2: Sized {
 impl Ln2 for f32 {
     const LN_2: Self = std::f32::consts::LN_2;
     const ZERO: Self = 0.0;
-    const NEG_INFINITY: Self = std::f32::NEG_INFINITY;
+    const NEG_INFINITY: Self = f32::NEG_INFINITY;
 }
 impl Ln2 for f64 {
     const LN_2: Self = std::f64::consts::LN_2;
     const ZERO: Self = 0.0;
-    const NEG_INFINITY: Self = std::f64::NEG_INFINITY;
+    const NEG_INFINITY: Self = f64::NEG_INFINITY;
 }
 
 impl<T: Float + Ln2> LogProb<T> {

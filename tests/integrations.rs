@@ -31,6 +31,15 @@ fn basic_construction() -> Result<()> {
 }
 
 #[test]
+fn prob_of_zero_and_one() -> Result<()> {
+    assert_eq!(LogProb::prob_of_zero(), LogProb::from_raw_prob(0.0_f64)?);
+    assert_eq!(LogProb::prob_of_one(), LogProb::from_raw_prob(1.0_f64)?);
+    assert_eq!(LogProb::prob_of_zero(), LogProb::from_raw_prob(0.0_f32)?);
+    assert_eq!(LogProb::prob_of_one(), LogProb::from_raw_prob(1.0_f32)?);
+    Ok(())
+}
+
+#[test]
 fn addition() -> Result<()> {
     let x = LogProb::new(-3.0)? + LogProb::new(-3.0)?;
     assert_eq!(x, LogProb::new(-6.0)?);
