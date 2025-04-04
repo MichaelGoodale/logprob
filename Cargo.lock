@@ -134,7 +134,7 @@ checksum = "fe7db12097d22ec582439daf8618b8fdd1a7bef6270e9af3b1ebcd30893cf413"
 
 [[package]]
 name = "logprob"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "approx",
