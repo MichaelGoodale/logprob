@@ -93,6 +93,7 @@
 
 use std::borrow::Borrow;
 
+use core::hash::Hash;
 use num_traits::Float;
 mod errors;
 pub use errors::{
@@ -199,6 +200,12 @@ impl<T: Float> Eq for LogProb<T> {}
 impl<T: Float> Ord for LogProb<T> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.0.partial_cmp(&other.0).unwrap()
+    }
+}
+impl<T: Hash> Hash for LogProb<T>
+{
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+        self.0.hash(state)
     }
 }
 
