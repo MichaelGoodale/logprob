@@ -13,9 +13,14 @@ keywords = [
   "machine-learning",
   "f64",
   "float",
-  "no_std",
 ]
-categories = ["science", "simulation", "mathematics"]
+categories = [
+  "science",
+  "simulation",
+  "mathematics",
+  "no-std",
+  "no-std::no-alloc",
+]
 
 [dependencies]
 num-traits = { version = "^0.2.19", features = [
