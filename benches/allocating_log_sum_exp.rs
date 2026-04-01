@@ -11,14 +11,14 @@ fn get_big_vector(n: u32) -> Vec<LogProb<f64>> {
     let mut rng = ChaCha8Rng::seed_from_u64(1);
     let n_float: f64 = n.into();
     (0..n)
-        .map(|_| LogProb::from_raw_prob(rng.gen::<f64>() / n_float).unwrap())
+        .map(|_| LogProb::from_raw_prob(rng.random::<f64>() / n_float).unwrap())
         .collect()
 }
 
 fn get_big_vector_overflow(n: u32) -> Vec<LogProb<f64>> {
     let mut rng = ChaCha8Rng::seed_from_u64(1);
     (0..n)
-        .map(|_| LogProb::from_raw_prob(rng.gen::<f64>()).unwrap())
+        .map(|_| LogProb::from_raw_prob(rng.random::<f64>()).unwrap())
         .collect()
 }
 

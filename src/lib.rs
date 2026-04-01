@@ -1,9 +1,10 @@
 //! This crate defines a basic [`LogProb`] wrapper for floats. The struct is designed so
 //! that only values that are coherent for a log-probability are acceptable. This means that
 //! [`LogProb`] can store:
-//!     - Any finite negative float value (e.g. -0.23, -32535.05, -66.0).
-//!     - Negative infinity (corresponding to 0.0 probability)
-//!     - 0.0 *and* -0.0.
+//!
+//! - Any finite negative float value (e.g. -0.23, -32535.05, -66.0).
+//! - Negative infinity (corresponding to 0.0 probability)
+//! - 0.0 *and* -0.0.
 //!
 //! If any other value is passed, [`LogProb::new`] returns a [`FloatIsNanOrPositive`] error.
 //! You can also construct new [`LogProb`] from values in \[0,1\] by using
@@ -106,7 +107,6 @@ pub use softmax::{softmax, Softmax};
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-
 ///Struct that can only hold float values that correspond to negative log
 ///probabilities.
 #[repr(transparent)]
@@ -202,8 +202,7 @@ impl<T: Float> Ord for LogProb<T> {
         self.0.partial_cmp(&other.0).unwrap()
     }
 }
-impl<T: Hash> Hash for LogProb<T>
-{
+impl<T: Hash> Hash for LogProb<T> {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         self.0.hash(state)
     }

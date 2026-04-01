@@ -29,7 +29,7 @@ impl From<FloatIsNanOrPositive> for ProbabilitiesSumToGreaterThanOne {
     }
 }
 
-/// An error for when a [`Softmax`] is passed a value that is NaN or infinity.
+/// An error for when [`softmax`](super::softmax) is passed a value that is NaN or infinity.
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct FloatIsNanOrPositiveInfinity;
 

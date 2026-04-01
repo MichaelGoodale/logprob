@@ -18,14 +18,14 @@ categories = ["science", "simulation", "mathematics"]
 
 [dependencies]
 num-traits = "^0.2.19"
-serde = { version = "^1.0.219", features = ["serde_derive"], optional = true }
+serde = { version = "^1.0.228", features = ["serde_derive"], optional = true }
 
 [dev-dependencies]
 divan = "0.1"
 anyhow = "1.0"
 approx = "0.5.1"
-rand = "0.9"
-rand_chacha = "0.9"
+rand = "0.10"
+rand_chacha = "0.10"
 
 [features]
 # Enable serialization using `serde`
