@@ -1,6 +1,6 @@
 [package]
 name = "logprob"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["Michael Goodale"]
 edition = "2021"
 description = "A wrapper around floats to handle log probabilities"
