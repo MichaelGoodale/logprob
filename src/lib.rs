@@ -93,18 +93,19 @@
 
 use std::borrow::Borrow;
 
+use core::hash::Hash;
 use num_traits::Float;
 mod errors;
 pub use errors::{
     FloatIsNanOrPositive, FloatIsNanOrPositiveInfinity, ProbabilitiesSumToGreaterThanOne,
 };
-use serde::{Deserialize, Serialize};
 mod adding;
 mod math;
 mod softmax;
 pub use softmax::{softmax, Softmax};
 
-#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default, Serialize, Deserialize)]
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 
 ///Struct that can only hold float values that correspond to negative log
 ///probabilities.
@@ -199,6 +200,12 @@ impl<T: Float> Eq for LogProb<T> {}
 impl<T: Float> Ord for LogProb<T> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.0.partial_cmp(&other.0).unwrap()
+    }
+}
+impl<T: Hash> Hash for LogProb<T>
+{
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+        self.0.hash(state)
     }
 }
 

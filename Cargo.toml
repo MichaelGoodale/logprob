@@ -17,8 +17,8 @@ keywords = [
 categories = ["science", "simulation", "mathematics"]
 
 [dependencies]
-num-traits = "0.2.19"
-serde = { version = "1.0.219", features = ["serde_derive"] }
+num-traits = "^0.2.19"
+serde = { version = "^1.0.219", features = ["serde_derive"], optional = true }
 
 [dev-dependencies]
 divan = "0.1"
@@ -26,6 +26,10 @@ anyhow = "1.0"
 approx = "0.5.1"
 rand = "0.9"
 rand_chacha = "0.9"
+
+[features]
+# Enable serialization using `serde`
+serde = ["dep:serde"]
 
 [[bench]]
 name = "allocating_log_sum_exp"
