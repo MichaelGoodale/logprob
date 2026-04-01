@@ -13,12 +13,16 @@ keywords = [
   "machine-learning",
   "f64",
   "float",
+  "no_std",
 ]
 categories = ["science", "simulation", "mathematics"]
 
 [dependencies]
-num-traits = "^0.2.19"
+num-traits = { version = "^0.2.19", features = [
+  "libm",
+], default-features = false }
 serde = { version = "^1.0.228", features = ["serde_derive"], optional = true }
+
 
 [dev-dependencies]
 divan = "0.1"
@@ -28,8 +32,11 @@ rand = "0.10"
 rand_chacha = "0.10"
 
 [features]
-# Enable serialization using `serde`
-serde = ["dep:serde"]
+default = ["std"]
+
+alloc = []
+std = ["alloc"]
+serde = ["dep:serde", "std"]
 
 [[bench]]
 name = "allocating_log_sum_exp"

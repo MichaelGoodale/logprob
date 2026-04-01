@@ -1,5 +1,5 @@
 use super::LogProb;
-use std::ops::{Add, AddAssign, Mul};
+use core::ops::{Add, AddAssign, Mul};
 
 impl<T: Add> Add for LogProb<T> {
     type Output = LogProb<T::Output>;
@@ -143,6 +143,7 @@ impl_mul!(u32, f64);
 
 macro_rules! impl_mul_lossy {
     ($unsigned: ty, $float: ty) => {
+        #[expect(clippy::cast_precision_loss)]
         impl Mul<LogProb<$float>> for $unsigned {
             type Output = LogProb<$float>;
 
@@ -152,6 +153,7 @@ macro_rules! impl_mul_lossy {
             }
         }
 
+        #[expect(clippy::cast_precision_loss)]
         impl Mul<$unsigned> for LogProb<$float> {
             type Output = LogProb<$float>;
 
@@ -161,6 +163,7 @@ macro_rules! impl_mul_lossy {
             }
         }
 
+        #[expect(clippy::cast_precision_loss)]
         impl Mul<&$unsigned> for LogProb<$float> {
             type Output = LogProb<$float>;
 
@@ -170,6 +173,7 @@ macro_rules! impl_mul_lossy {
             }
         }
 
+        #[expect(clippy::cast_precision_loss)]
         impl Mul<&LogProb<$float>> for $unsigned {
             type Output = LogProb<$float>;
 
@@ -179,6 +183,7 @@ macro_rules! impl_mul_lossy {
             }
         }
 
+        #[expect(clippy::cast_precision_loss)]
         impl Mul<LogProb<$float>> for &$unsigned {
             type Output = LogProb<$float>;
 
@@ -187,6 +192,8 @@ macro_rules! impl_mul_lossy {
                 LogProb(s * rhs.0)
             }
         }
+
+        #[expect(clippy::cast_precision_loss)]
         impl Mul<$unsigned> for &LogProb<$float> {
             type Output = LogProb<$float>;
 
@@ -195,6 +202,8 @@ macro_rules! impl_mul_lossy {
                 LogProb(s * self.0)
             }
         }
+
+        #[expect(clippy::cast_precision_loss)]
         impl Mul<&LogProb<$float>> for &$unsigned {
             type Output = LogProb<$float>;
 
@@ -204,6 +213,7 @@ macro_rules! impl_mul_lossy {
             }
         }
 
+        #[expect(clippy::cast_precision_loss)]
         impl Mul<&$unsigned> for &LogProb<$float> {
             type Output = LogProb<$float>;
 

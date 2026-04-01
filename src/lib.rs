@@ -51,7 +51,10 @@
 //! use logprob::{LogSumExp, log_sum_exp};
 //! let x = LogProb::from_raw_prob(0.5_f64).unwrap();
 //! let y = LogProb::from_raw_prob(0.25).unwrap();
+//! # #[cfg(feature = "alloc")]
 //! let z = [x,y].iter().log_sum_exp().unwrap();
+//! # #[cfg(not(feature = "alloc"))]
+//! let z = [x,y].iter().log_sum_exp_no_alloc().unwrap();
 //! assert_eq!(z, LogProb::from_raw_prob(0.75).unwrap());
 //! let v = log_sum_exp(&[x,y]).unwrap();
 //! assert_eq!(z, LogProb::from_raw_prob(0.75).unwrap());
@@ -67,13 +70,20 @@
 //! # use logprob::{LogSumExp, log_sum_exp};
 //! let x = LogProb::from_raw_prob(0.5_f64).unwrap();
 //! let y = LogProb::from_raw_prob(0.75).unwrap();
-//! let z = [x,y].into_iter().log_sum_exp_clamped();
+//! # #[cfg(feature = "alloc")]
+//! let z = [x,y].iter().log_sum_exp_clamped();
+//! # #[cfg(not(feature = "alloc"))]
+//! let z = [x,y].iter().log_sum_exp_clamped_no_alloc();
 //! assert_eq!(z, LogProb::new(0.0).unwrap());
+//!
+//! # #[cfg(feature = "alloc")]
 //! let z = [x,y].into_iter().log_sum_exp_float();
+//! # #[cfg(not(feature = "alloc"))]
+//! let z = [x,y].into_iter().log_sum_exp_float_no_alloc();
+//!
 //! approx::assert_relative_eq!(z, (1.25_f64).ln());
 //!
 //! ```
-//!
 
 #![warn(
     anonymous_parameters,
@@ -91,9 +101,15 @@
     unused_qualifications,
     variant_size_differences
 )]
+#![no_std]
 
-use std::borrow::Borrow;
+#[cfg(feature = "std")]
+extern crate std;
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
+use core::borrow::Borrow;
 use core::hash::Hash;
 use num_traits::Float;
 mod errors;
@@ -102,7 +118,11 @@ pub use errors::{
 };
 mod adding;
 mod math;
+
+#[cfg(feature = "alloc")]
 mod softmax;
+
+#[cfg(feature = "alloc")]
 pub use softmax::{softmax, Softmax};
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
@@ -115,6 +135,9 @@ pub use adding::{log_sum_exp, log_sum_exp_clamped, log_sum_exp_float, LogSumExp}
 
 impl<T: Float> LogProb<T> {
     ///Construct a new [`LogProb`] that is guaranteed to be negative (or +0.0).
+    ///
+    ///# Errors
+    ///Returns [`FloatIsNanOrPositive`] if the float is NaN or positive.
     pub fn new(val: T) -> Result<Self, FloatIsNanOrPositive> {
         if val.is_nan() || (!val.is_zero() && val.is_sign_positive()) {
             Err(FloatIsNanOrPositive)
@@ -124,6 +147,8 @@ impl<T: Float> LogProb<T> {
     }
 
     ///Construct a new [`LogProb`] that is guaranteed to be negative (or +0.0) from a value in [0.0, 1.0].
+    ///# Errors
+    ///Returns [`FloatIsNanOrPositive`] if the *logarithm* of the float is NaN or positive.
     pub fn from_raw_prob(val: T) -> Result<Self, FloatIsNanOrPositive> {
         let val = val.ln();
         if val.is_nan() || (!val.is_zero() && val.is_sign_positive()) {
@@ -133,20 +158,23 @@ impl<T: Float> LogProb<T> {
         }
     }
 
-    ///Constructs a new LogProb which corresponds to a probability of zero (e.g. neg infinity)
+    ///Constructs a new `LogProb` which corresponds to a probability of zero (e.g. neg infinity)
+    #[must_use]
     pub fn prob_of_zero() -> Self {
         LogProb(T::neg_infinity())
     }
 
-    ///Constructs a new LogProb which corresponds to a probability of one (e.g. the log prob is
+    ///Constructs a new `LogProb` which corresponds to a probability of one (e.g. the log prob is
     ///equal to 0)
+    #[must_use]
     pub fn prob_of_one() -> Self {
         LogProb(T::zero())
     }
 
     /// Gets out the value.
     #[inline]
-    pub fn into_inner(self) -> T {
+    #[must_use]
+    pub const fn into_inner(self) -> T {
         self.0
     }
 
@@ -157,6 +185,7 @@ impl<T: Float> LogProb<T> {
     /// assert_eq!(x.raw_prob(), 0.25);
     /// ```
     #[inline]
+    #[must_use]
     pub fn raw_prob(&self) -> T {
         self.0.exp()
     }
@@ -168,14 +197,15 @@ impl<T: Float> LogProb<T> {
     /// let y = LogProb::from_raw_prob(0.75).unwrap();
     /// assert_eq!(x.opposite_prob(), y);
     /// ```
+    #[must_use]
     pub fn opposite_prob(&self) -> Self {
         LogProb((-self.0.exp()).ln_1p())
     }
 }
 
-impl<T: Float + std::fmt::Display> std::fmt::Display for LogProb<T> {
+impl<T: Float + core::fmt::Display> core::fmt::Display for LogProb<T> {
     #[inline]
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         self.0.fmt(f)
     }
 }
@@ -198,13 +228,13 @@ impl<T: Float> Eq for LogProb<T> {}
 
 #[allow(clippy::derive_ord_xor_partial_ord)]
 impl<T: Float> Ord for LogProb<T> {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+    fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         self.0.partial_cmp(&other.0).unwrap()
     }
 }
 impl<T: Hash> Hash for LogProb<T> {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
-        self.0.hash(state)
+        self.0.hash(state);
     }
 }
 

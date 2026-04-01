@@ -1,8 +1,12 @@
-use std::iter::Sum;
-
 use super::{adding::Ln2, Float, FloatIsNanOrPositiveInfinity, LogProb};
+use core::iter::Sum;
+
+use alloc::vec::Vec;
 
 ///Returns an iterator with the softmax values of a slice of floats.
+///# Errors
+///Returns [`FloatIsNanOrPositiveInfinity`] if any float is NaN or positive infinity.
+#[expect(clippy::missing_panics_doc)]
 pub fn softmax<T: Float + Sum<T> + Ln2>(
     val: &[T],
 ) -> Result<impl Iterator<Item = LogProb<T>>, FloatIsNanOrPositiveInfinity> {
@@ -20,7 +24,7 @@ pub fn softmax<T: Float + Sum<T> + Ln2>(
         .iter()
         .max_by(|x, y| x.partial_cmp(y).unwrap())
         .unwrap_or(&T::ZERO);
-    let s: T = v.iter().map(|&x| x - max).map(|x| x.exp()).sum::<T>().ln();
+    let s: T = v.iter().map(|&x| (x - max).exp()).sum::<T>().ln();
 
     Ok(v.into_iter().map(move |x| LogProb(x - s - max)))
 }
@@ -47,7 +51,10 @@ pub fn softmax<T: Float + Sum<T> + Ln2>(
 /// # }
 /// ```
 pub trait Softmax: Iterator {
-    ///Gets the softmax from an iterator as another iterator
+    ///Gets the softmax from an iterator as another iterator.
+    ///
+    ///# Errors
+    ///Returns [`FloatIsNanOrPositiveInfinity`] if any float is NaN or positive infinity.
     fn softmax<T: Float + Sum<T> + Ln2>(
         self,
     ) -> Result<impl Iterator<Item = LogProb<T>>, FloatIsNanOrPositiveInfinity>
