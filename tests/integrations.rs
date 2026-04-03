@@ -1,5 +1,5 @@
 use anyhow::Result;
-use logprob::{LogProb, LogSumExp};
+use logprob::{LogProb, LogSumExp, ProbabilitiesSumToGreaterThanOne};
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
@@ -73,6 +73,22 @@ fn addition() -> Result<()> {
 
     let x = LogProb::new(-0.5)? + LogProb::new(f64::NEG_INFINITY)?;
     assert_eq!(x, LogProb::new(f64::NEG_INFINITY)?);
+    Ok(())
+}
+
+#[test]
+fn subtraction() -> Result<()> {
+    let x = LogProb::new(-3.0)? - LogProb::new(-2.0)?;
+    assert_eq!(x, Ok(LogProb::new(-1.0)?));
+
+    let x = LogProb::new(-0.0)? - LogProb::new(0.0)?;
+    assert_eq!(x, Ok(LogProb::new(0.0)?));
+
+    let x = LogProb::new(-4.0)? - LogProb::new(-4.0)?;
+    assert_eq!(x, Ok(LogProb::new(0.0)?));
+
+    let x = LogProb::new(-3.0)? - LogProb::new(-4.0)?;
+    assert_eq!(x, Err(ProbabilitiesSumToGreaterThanOne));
     Ok(())
 }
 
