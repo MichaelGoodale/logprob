@@ -89,6 +89,13 @@ fn subtraction() -> Result<()> {
 
     let x = LogProb::new(-3.0)? - LogProb::new(-4.0)?;
     assert_eq!(x, Err(ProbabilitiesSumToGreaterThanOne));
+
+    // 0 / anything = 0
+    let x = LogProb::new(f32::NEG_INFINITY)? - LogProb::new(-1.234)?;
+    assert_eq!(x, Ok(LogProb::prob_of_zero()));
+
+    let x = LogProb::new(f32::NEG_INFINITY)? - LogProb::new(f32::NEG_INFINITY)?;
+    assert_eq!(x, Err(ProbabilitiesSumToGreaterThanOne));
     Ok(())
 }
 

@@ -72,6 +72,9 @@ impl<T: Sub + Float> Sub for LogProb<T> {
         if self > rhs {
             return Err(ProbabilitiesSumToGreaterThanOne);
         }
+        if !rhs.0.is_finite() {
+            return Err(ProbabilitiesSumToGreaterThanOne);
+        }
         Ok(LogProb(self.0 - rhs.0))
     }
 }
@@ -84,6 +87,9 @@ where
     #[inline]
     fn sub(self, rhs: &'a Self) -> Self::Output {
         if self > *rhs {
+            return Err(ProbabilitiesSumToGreaterThanOne);
+        }
+        if !rhs.0.is_finite() {
             return Err(ProbabilitiesSumToGreaterThanOne);
         }
         Ok(LogProb(self.0.sub(&rhs.0)))
@@ -102,6 +108,9 @@ where
         if *self > rhs {
             return Err(ProbabilitiesSumToGreaterThanOne);
         }
+        if !rhs.0.is_finite() {
+            return Err(ProbabilitiesSumToGreaterThanOne);
+        }
         Ok(LogProb(self.0.sub(rhs.0)))
     }
 }
@@ -116,6 +125,9 @@ where
     #[inline]
     fn sub(self, rhs: &'b LogProb<T>) -> Self::Output {
         if self > rhs {
+            return Err(ProbabilitiesSumToGreaterThanOne);
+        }
+        if !rhs.0.is_finite() {
             return Err(ProbabilitiesSumToGreaterThanOne);
         }
         Ok(LogProb(self.0.sub(rhs.0)))
