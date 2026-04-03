@@ -54,7 +54,7 @@
 //! # #[cfg(feature = "alloc")]
 //! let z = [x,y].iter().log_sum_exp().unwrap();
 //! # #[cfg(not(feature = "alloc"))]
-//! let z = [x,y].iter().log_sum_exp_no_alloc().unwrap();
+//! # let z = [x,y].iter().log_sum_exp_no_alloc().unwrap();
 //! assert_eq!(z, LogProb::from_raw_prob(0.75).unwrap());
 //! let v = log_sum_exp(&[x,y]).unwrap();
 //! assert_eq!(z, LogProb::from_raw_prob(0.75).unwrap());
@@ -73,13 +73,13 @@
 //! # #[cfg(feature = "alloc")]
 //! let z = [x,y].iter().log_sum_exp_clamped();
 //! # #[cfg(not(feature = "alloc"))]
-//! let z = [x,y].iter().log_sum_exp_clamped_no_alloc();
+//! # let z = [x,y].iter().log_sum_exp_clamped_no_alloc();
 //! assert_eq!(z, LogProb::new(0.0).unwrap());
 //!
 //! # #[cfg(feature = "alloc")]
 //! let z = [x,y].into_iter().log_sum_exp_float();
 //! # #[cfg(not(feature = "alloc"))]
-//! let z = [x,y].into_iter().log_sum_exp_float_no_alloc();
+//! # let z = [x,y].into_iter().log_sum_exp_float_no_alloc();
 //!
 //! approx::assert_relative_eq!(z, (1.25_f64).ln());
 //!
@@ -129,6 +129,36 @@ pub use softmax::{softmax, Softmax};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 ///Struct that can only hold float values that correspond to negative log
 ///probabilities.
+///
+///## `Ord` and `Hash`
+///`LogProb` implements both `Hash` and `Ord` since we no longer have `NaN` values.
+///However, one should always remember that floating point numbers won't necessarily correspond to
+///the exact real number that one might expect when doing different mathematical operations.
+///
+/// ```
+/// # #[cfg(feature = "alloc")]
+/// # use std::collections::HashSet;
+/// # #[cfg(feature = "alloc")]
+/// # use std::collections::BTreeSet;
+/// # use logprob::LogProb;
+/// # fn main() -> anyhow::Result<()> {
+/// let a = LogProb::new(-0.1_f64 - 0.2_f64).unwrap();
+/// let b = LogProb::new(-0.3_f64).unwrap();
+///
+/// # #[cfg(feature = "alloc")]
+/// let set = HashSet::from([a, b]);
+/// # #[cfg(feature = "alloc")]
+/// let o_set =BTreeSet::from([a,b]);
+///
+/// //Since the floats aren't exactly equal like one might expect,
+/// //we have 2 elements in both collections
+/// # #[cfg(feature = "alloc")]
+/// assert_eq!(set.len(), 2);
+/// # #[cfg(feature = "alloc")]
+/// assert_eq!(o_set.len(), 2);
+/// # Ok(())
+/// # }
+/// ```
 #[repr(transparent)]
 pub struct LogProb<T>(T);
 pub use adding::{log_sum_exp, log_sum_exp_clamped, log_sum_exp_float, LogSumExp};
