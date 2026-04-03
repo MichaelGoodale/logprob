@@ -2,7 +2,7 @@
 name = "logprob"
 version = "0.3.0"
 authors = ["Michael Goodale"]
-edition = "2021"
+edition = "2024"
 description = "A wrapper around floats to handle log probabilities"
 readme = "README.md"
 repository = "https://github.com/michaelgoodale/logprob/"

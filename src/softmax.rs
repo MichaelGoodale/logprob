@@ -1,4 +1,4 @@
-use super::{adding::Ln2, Float, FloatIsNanOrPositiveInfinity, LogProb};
+use super::{Float, FloatIsNanOrPositiveInfinity, LogProb, adding::Ln2};
 use core::iter::Sum;
 
 use alloc::vec::Vec;
@@ -9,7 +9,7 @@ use alloc::vec::Vec;
 #[expect(clippy::missing_panics_doc)]
 pub fn softmax<T: Float + Sum<T> + Ln2>(
     val: &[T],
-) -> Result<impl Iterator<Item = LogProb<T>>, FloatIsNanOrPositiveInfinity> {
+) -> Result<impl Iterator<Item = LogProb<T>> + use<T>, FloatIsNanOrPositiveInfinity> {
     let v: Vec<_> = val
         .iter()
         .map(|x| {

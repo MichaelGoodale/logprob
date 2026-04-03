@@ -8,7 +8,7 @@ extern crate alloc;
 use alloc::vec::Vec;
 
 #[cfg(feature = "alloc")]
-use logprob::{log_sum_exp, log_sum_exp_clamped, log_sum_exp_float, softmax, Softmax};
+use logprob::{Softmax, log_sum_exp, log_sum_exp_clamped, log_sum_exp_float, softmax};
 
 #[test]
 fn basic_construction() -> Result<()> {
@@ -138,12 +138,14 @@ fn add_probs_test() -> Result<()> {
         .log_sum_exp_no_alloc()?;
     approx::assert_relative_eq!(sum.into_inner(), LogProb::new(0.0)?.into_inner());
 
-    assert!([0.5, 0.5, 0.3]
-        .map(LogProb::from_raw_prob)
-        .map(|x| x.unwrap())
-        .into_iter()
-        .log_sum_exp_no_alloc()
-        .is_err());
+    assert!(
+        [0.5, 0.5, 0.3]
+            .map(LogProb::from_raw_prob)
+            .map(|x| x.unwrap())
+            .into_iter()
+            .log_sum_exp_no_alloc()
+            .is_err()
+    );
 
     let sum = [0.5, 0.5, 0.5]
         .map(LogProb::from_raw_prob)
@@ -175,12 +177,14 @@ fn add_probs_test() -> Result<()> {
             .log_sum_exp()?;
         approx::assert_relative_eq!(sum.into_inner(), LogProb::new(0.0)?.into_inner());
 
-        assert!([0.5, 0.5, 0.3]
-            .map(LogProb::from_raw_prob)
-            .map(|x| x.unwrap())
-            .into_iter()
-            .log_sum_exp()
-            .is_err());
+        assert!(
+            [0.5, 0.5, 0.3]
+                .map(LogProb::from_raw_prob)
+                .map(|x| x.unwrap())
+                .into_iter()
+                .log_sum_exp()
+                .is_err()
+        );
 
         let sum = [0.5, 0.5, 0.5]
             .map(LogProb::from_raw_prob)
