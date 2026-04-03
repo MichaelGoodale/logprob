@@ -232,9 +232,14 @@ impl<T: Float> Ord for LogProb<T> {
         self.0.partial_cmp(&other.0).unwrap()
     }
 }
-impl<T: Hash> Hash for LogProb<T> {
+impl Hash for LogProb<f32> {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
-        self.0.hash(state);
+      self.0.to_bits().hash(state);
+    }
+}
+impl Hash for LogProb<f64> {
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+      self.0.to_bits().hash(state);
     }
 }
 
