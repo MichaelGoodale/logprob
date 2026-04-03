@@ -1,5 +1,5 @@
 use anyhow::Result;
-use logprob::{LogProb, LogSumExp, ProbabilitiesSumToGreaterThanOne};
+use logprob::{LogProb, LogProbSubtractionError, LogSumExp};
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
@@ -88,14 +88,17 @@ fn subtraction() -> Result<()> {
     assert_eq!(x, Ok(LogProb::new(0.0)?));
 
     let x = LogProb::new(-3.0)? - LogProb::new(-4.0)?;
-    assert_eq!(x, Err(ProbabilitiesSumToGreaterThanOne));
+    assert_eq!(
+        x,
+        Err(LogProbSubtractionError::NumeratorBiggerThanDenominator)
+    );
 
     // 0 / anything = 0
     let x = LogProb::new(f32::NEG_INFINITY)? - LogProb::new(-1.234)?;
     assert_eq!(x, Ok(LogProb::prob_of_zero()));
 
     let x = LogProb::new(f32::NEG_INFINITY)? - LogProb::new(f32::NEG_INFINITY)?;
-    assert_eq!(x, Err(ProbabilitiesSumToGreaterThanOne));
+    assert_eq!(x, Err(LogProbSubtractionError::DivideByZero));
     Ok(())
 }
 

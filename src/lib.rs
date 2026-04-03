@@ -114,7 +114,8 @@ use core::hash::Hash;
 use num_traits::Float;
 mod errors;
 pub use errors::{
-    FloatIsNanOrPositive, FloatIsNanOrPositiveInfinity, ProbabilitiesSumToGreaterThanOne,
+    FloatIsNanOrPositive, FloatIsNanOrPositiveInfinity, LogProbSubtractionError,
+    ProbabilitiesSumToGreaterThanOne,
 };
 mod adding;
 mod math;

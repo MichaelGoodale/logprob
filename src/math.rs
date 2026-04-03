@@ -1,6 +1,6 @@
 use num_traits::Float;
 
-use crate::ProbabilitiesSumToGreaterThanOne;
+use crate::errors::LogProbSubtractionError;
 
 use super::LogProb;
 use core::ops::{Add, AddAssign, Mul, Sub};
@@ -66,14 +66,14 @@ impl<'a, T: AddAssign<&'a T>> AddAssign<&'a Self> for LogProb<T> {
 }
 
 impl<T: Sub + Float> Sub for LogProb<T> {
-    type Output = Result<LogProb<<T as Sub>::Output>, ProbabilitiesSumToGreaterThanOne>;
+    type Output = Result<LogProb<<T as Sub>::Output>, LogProbSubtractionError>;
 
     fn sub(self, rhs: Self) -> Self::Output {
         if self > rhs {
-            return Err(ProbabilitiesSumToGreaterThanOne);
+            return Err(LogProbSubtractionError::NumeratorBiggerThanDenominator);
         }
         if !rhs.0.is_finite() {
-            return Err(ProbabilitiesSumToGreaterThanOne);
+            return Err(LogProbSubtractionError::DivideByZero);
         }
         Ok(LogProb(self.0 - rhs.0))
     }
@@ -82,15 +82,15 @@ impl<'a, T> Sub<&'a Self> for LogProb<T>
 where
     T: Sub<&'a T> + Float,
 {
-    type Output = Result<LogProb<<T as Sub<&'a T>>::Output>, ProbabilitiesSumToGreaterThanOne>;
+    type Output = Result<LogProb<<T as Sub<&'a T>>::Output>, LogProbSubtractionError>;
 
     #[inline]
     fn sub(self, rhs: &'a Self) -> Self::Output {
         if self > *rhs {
-            return Err(ProbabilitiesSumToGreaterThanOne);
+            return Err(LogProbSubtractionError::NumeratorBiggerThanDenominator);
         }
         if !rhs.0.is_finite() {
-            return Err(ProbabilitiesSumToGreaterThanOne);
+            return Err(LogProbSubtractionError::DivideByZero);
         }
         Ok(LogProb(self.0.sub(&rhs.0)))
     }
@@ -101,15 +101,15 @@ where
     &'a T: Sub<T>,
     T: Float,
 {
-    type Output = Result<LogProb<T>, ProbabilitiesSumToGreaterThanOne>;
+    type Output = Result<LogProb<T>, LogProbSubtractionError>;
 
     #[inline]
     fn sub(self, rhs: LogProb<T>) -> Self::Output {
         if *self > rhs {
-            return Err(ProbabilitiesSumToGreaterThanOne);
+            return Err(LogProbSubtractionError::NumeratorBiggerThanDenominator);
         }
         if !rhs.0.is_finite() {
-            return Err(ProbabilitiesSumToGreaterThanOne);
+            return Err(LogProbSubtractionError::DivideByZero);
         }
         Ok(LogProb(self.0.sub(rhs.0)))
     }
@@ -120,15 +120,15 @@ where
     &'a T: Sub<T>,
     T: Copy + Float,
 {
-    type Output = Result<LogProb<T>, ProbabilitiesSumToGreaterThanOne>;
+    type Output = Result<LogProb<T>, LogProbSubtractionError>;
 
     #[inline]
     fn sub(self, rhs: &'b LogProb<T>) -> Self::Output {
         if self > rhs {
-            return Err(ProbabilitiesSumToGreaterThanOne);
+            return Err(LogProbSubtractionError::NumeratorBiggerThanDenominator);
         }
         if !rhs.0.is_finite() {
-            return Err(ProbabilitiesSumToGreaterThanOne);
+            return Err(LogProbSubtractionError::DivideByZero);
         }
         Ok(LogProb(self.0.sub(rhs.0)))
     }
