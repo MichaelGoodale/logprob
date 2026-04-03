@@ -1,3 +1,6 @@
+use core::f32;
+use std::collections::HashSet;
+
 use anyhow::Result;
 use logprob::{LogProb, LogSumExp};
 
@@ -9,6 +12,18 @@ use alloc::vec::Vec;
 
 #[cfg(feature = "alloc")]
 use logprob::{log_sum_exp, log_sum_exp_clamped, log_sum_exp_float, softmax, Softmax};
+
+#[test]
+fn implements_hash() -> Result<()>
+{
+  let mut table = HashSet::<LogProb<f32>>::new();
+  table.insert(LogProb::new(-0.5_f32)?);
+  table.insert(LogProb::new(-0.8_f32)?);
+  table.insert(LogProb::new(f32::NEG_INFINITY)?);
+
+  assert_eq!(table.len(), 3);
+  Ok(())
+}
 
 #[test]
 fn basic_construction() -> Result<()> {
