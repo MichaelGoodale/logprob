@@ -1,5 +1,9 @@
+use num_traits::Float;
+
+use crate::ProbabilitiesSumToGreaterThanOne;
+
 use super::LogProb;
-use core::ops::{Add, AddAssign, Mul};
+use core::ops::{Add, AddAssign, Mul, Sub};
 
 impl<T: Add> Add for LogProb<T> {
     type Output = LogProb<T::Output>;
@@ -58,6 +62,63 @@ impl<'a, T: AddAssign<&'a T>> AddAssign<&'a Self> for LogProb<T> {
     #[inline]
     fn add_assign(&mut self, other: &'a Self) {
         (self.0).add_assign(&other.0);
+    }
+}
+
+impl<T: Sub + Float> Sub for LogProb<T> {
+    type Output = Result<LogProb<<T as Sub>::Output>, ProbabilitiesSumToGreaterThanOne>;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        if self > rhs {
+            return Err(ProbabilitiesSumToGreaterThanOne);
+        }
+        Ok(LogProb(self.0 - rhs.0))
+    }
+}
+impl<'a, T> Sub<&'a Self> for LogProb<T>
+where
+    T: Sub<&'a T> + Float,
+{
+    type Output = Result<LogProb<<T as Sub<&'a T>>::Output>, ProbabilitiesSumToGreaterThanOne>;
+
+    #[inline]
+    fn sub(self, rhs: &'a Self) -> Self::Output {
+        if self > *rhs {
+            return Err(ProbabilitiesSumToGreaterThanOne);
+        }
+        Ok(LogProb(self.0.sub(&rhs.0)))
+    }
+}
+
+impl<'a, T> Sub<LogProb<T>> for &'a LogProb<T>
+where
+    &'a T: Sub<T>,
+    T: Float,
+{
+    type Output = Result<LogProb<T>, ProbabilitiesSumToGreaterThanOne>;
+
+    #[inline]
+    fn sub(self, rhs: LogProb<T>) -> Self::Output {
+        if *self > rhs {
+            return Err(ProbabilitiesSumToGreaterThanOne);
+        }
+        Ok(LogProb(self.0.sub(rhs.0)))
+    }
+}
+
+impl<'a, 'b, T> Sub<&'b LogProb<T>> for &'a LogProb<T>
+where
+    &'a T: Sub<T>,
+    T: Copy + Float,
+{
+    type Output = Result<LogProb<T>, ProbabilitiesSumToGreaterThanOne>;
+
+    #[inline]
+    fn sub(self, rhs: &'b LogProb<T>) -> Self::Output {
+        if self > rhs {
+            return Err(ProbabilitiesSumToGreaterThanOne);
+        }
+        Ok(LogProb(self.0.sub(rhs.0)))
     }
 }
 
