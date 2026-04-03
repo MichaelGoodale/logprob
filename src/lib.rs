@@ -136,25 +136,25 @@ pub use softmax::{softmax, Softmax};
 ///the exact real number that one might expect when doing different mathematical operations.
 ///
 /// ```
-/// # #[cfg(feature = "alloc")]
+/// # #[cfg(feature = "std")]
 /// # use std::collections::HashSet;
-/// # #[cfg(feature = "alloc")]
+/// # #[cfg(feature = "std")]
 /// # use std::collections::BTreeSet;
 /// # use logprob::LogProb;
 /// # fn main() -> anyhow::Result<()> {
 /// let a = LogProb::new(-0.1_f64 - 0.2_f64).unwrap();
 /// let b = LogProb::new(-0.3_f64).unwrap();
 ///
-/// # #[cfg(feature = "alloc")]
+/// # #[cfg(feature = "std")]
 /// let set = HashSet::from([a, b]);
-/// # #[cfg(feature = "alloc")]
+/// # #[cfg(feature = "std")]
 /// let o_set =BTreeSet::from([a,b]);
 ///
 /// //Since the floats aren't exactly equal like one might expect,
 /// //we have 2 elements in both collections
-/// # #[cfg(feature = "alloc")]
+/// # #[cfg(feature = "std")]
 /// assert_eq!(set.len(), 2);
-/// # #[cfg(feature = "alloc")]
+/// # #[cfg(feature = "std")]
 /// assert_eq!(o_set.len(), 2);
 /// # Ok(())
 /// # }
