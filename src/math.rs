@@ -68,12 +68,8 @@ impl<'a, T: AddAssign<&'a T>> AddAssign<&'a Self> for LogProb<T> {
 impl<T: Sub + Float + SubAssign> SubAssign for LogProb<T> {
     #[inline]
     fn sub_assign(&mut self, other: Self) {
-        if *self > other {
-            panic!("Numerator is greater than denominator")
-        }
-        if !other.0.is_finite() {
-            panic!("Division by zero in prob space");
-        }
+        assert!(*self <= other, "Numerator is greater than denominator");
+        assert!(other.0.is_finite(), "Division by zero in prob space");
         self.0 -= other.0;
     }
 }
@@ -81,12 +77,8 @@ impl<T: Sub + Float + SubAssign> SubAssign for LogProb<T> {
 impl<'a, T: Sub + Float + SubAssign<T>> SubAssign<&'a Self> for LogProb<T> {
     #[inline]
     fn sub_assign(&mut self, other: &'a Self) {
-        if *self > *other {
-            panic!("Numerator is greater than denominator")
-        }
-        if !other.0.is_finite() {
-            panic!("Division by zero in prob space");
-        }
+        assert!(*self <= *other, "Numerator is greater than denominator");
+        assert!(other.0.is_finite(), "Division by zero in prob space");
         self.0 -= other.0;
     }
 }
@@ -95,12 +87,8 @@ impl<T: Sub + Float> Sub for LogProb<T> {
     type Output = LogProb<<T as Sub>::Output>;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        if self > rhs {
-            panic!("Numerator is greater than denominator")
-        }
-        if !rhs.0.is_finite() {
-            panic!("Division by zero in prob space");
-        }
+        assert!(self <= rhs, "Numerator is greater than denominator");
+        assert!(rhs.0.is_finite(), "Division by zero in prob space");
         LogProb(self.0 - rhs.0)
     }
 }
@@ -112,12 +100,8 @@ where
 
     #[inline]
     fn sub(self, rhs: &'a Self) -> Self::Output {
-        if self > *rhs {
-            panic!("Numerator is greater than denominator")
-        }
-        if !rhs.0.is_finite() {
-            panic!("Division by zero in prob space");
-        }
+        assert!(self <= *rhs, "Numerator is greater than denominator");
+        assert!(rhs.0.is_finite(), "Division by zero in prob space");
         LogProb(self.0.sub(&rhs.0))
     }
 }
@@ -131,12 +115,8 @@ where
 
     #[inline]
     fn sub(self, rhs: LogProb<T>) -> Self::Output {
-        if *self > rhs {
-            panic!("Numerator is greater than denominator")
-        }
-        if !rhs.0.is_finite() {
-            panic!("Division by zero in prob space");
-        }
+        assert!(*self <= rhs, "Numerator is greater than denominator");
+        assert!(rhs.0.is_finite(), "Division by zero in prob space");
         LogProb(self.0.sub(rhs.0))
     }
 }
@@ -150,12 +130,8 @@ where
 
     #[inline]
     fn sub(self, rhs: &'b LogProb<T>) -> Self::Output {
-        if self > rhs {
-            panic!("Numerator is greater than denominator")
-        }
-        if !rhs.0.is_finite() {
-            panic!("Division by zero in prob space");
-        }
+        assert!(self <= rhs, "Numerator is greater than denominator");
+        assert!(rhs.0.is_finite(), "Division by zero in prob space");
 
         LogProb(self.0.sub(rhs.0))
     }
