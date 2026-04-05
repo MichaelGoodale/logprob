@@ -54,7 +54,7 @@
 //! # #[cfg(feature = "alloc")]
 //! let z = [x,y].iter().log_sum_exp().unwrap();
 //! # #[cfg(not(feature = "alloc"))]
-//! let z = [x,y].iter().log_sum_exp_no_alloc().unwrap();
+//! # let z = [x,y].iter().log_sum_exp_no_alloc().unwrap();
 //! assert_eq!(z, LogProb::from_raw_prob(0.75).unwrap());
 //! let v = log_sum_exp(&[x,y]).unwrap();
 //! assert_eq!(z, LogProb::from_raw_prob(0.75).unwrap());
@@ -73,13 +73,13 @@
 //! # #[cfg(feature = "alloc")]
 //! let z = [x,y].iter().log_sum_exp_clamped();
 //! # #[cfg(not(feature = "alloc"))]
-//! let z = [x,y].iter().log_sum_exp_clamped_no_alloc();
+//! # let z = [x,y].iter().log_sum_exp_clamped_no_alloc();
 //! assert_eq!(z, LogProb::new(0.0).unwrap());
 //!
 //! # #[cfg(feature = "alloc")]
 //! let z = [x,y].into_iter().log_sum_exp_float();
 //! # #[cfg(not(feature = "alloc"))]
-//! let z = [x,y].into_iter().log_sum_exp_float_no_alloc();
+//! # let z = [x,y].into_iter().log_sum_exp_float_no_alloc();
 //!
 //! approx::assert_relative_eq!(z, (1.25_f64).ln());
 //!
@@ -150,7 +150,35 @@ pub use softmax::{softmax, Softmax};
 ///let _ = LogProb::new(-3.0).unwrap() - LogProb::new(-4.0).unwrap();
 ///```
 ///
+///## `Ord` and `Hash`
+///`LogProb` implements both `Hash` and `Ord` since we no longer have `NaN` values.
+///However, one should always remember that floating point numbers won't necessarily correspond to
+///the exact real number that one might expect when doing different mathematical operations.
 ///
+/// ```
+/// # #[cfg(feature = "std")]
+/// # use std::collections::HashSet;
+/// # #[cfg(feature = "std")]
+/// # use std::collections::BTreeSet;
+/// # use logprob::LogProb;
+/// # fn main() -> anyhow::Result<()> {
+/// let a = LogProb::new(-0.1_f64 - 0.2_f64).unwrap();
+/// let b = LogProb::new(-0.3_f64).unwrap();
+///
+/// # #[cfg(feature = "std")]
+/// let set = HashSet::from([a, b]);
+/// # #[cfg(feature = "std")]
+/// let o_set =BTreeSet::from([a,b]);
+///
+/// //Since the floats aren't exactly equal like one might expect,
+/// //we have 2 elements in both collections
+/// # #[cfg(feature = "std")]
+/// assert_eq!(set.len(), 2);
+/// # #[cfg(feature = "std")]
+/// assert_eq!(o_set.len(), 2);
+/// # Ok(())
+/// # }
+/// ```
 #[repr(transparent)]
 pub struct LogProb<T>(T);
 pub use adding::{log_sum_exp, log_sum_exp_clamped, log_sum_exp_float, LogSumExp};
@@ -254,9 +282,14 @@ impl<T: Float> Ord for LogProb<T> {
         self.0.partial_cmp(&other.0).unwrap()
     }
 }
-impl<T: Hash> Hash for LogProb<T> {
+impl Hash for LogProb<f32> {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
-        self.0.hash(state);
+        self.0.to_bits().hash(state);
+    }
+}
+impl Hash for LogProb<f64> {
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+        self.0.to_bits().hash(state);
     }
 }
 
