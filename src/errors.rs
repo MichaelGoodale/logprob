@@ -46,7 +46,7 @@ impl core::fmt::Display for FloatIsNanOrPositiveInfinity {
 pub enum LogProbSubtractionError {
     ///Can't divide by zero (or subtract negative infinity)
     DivideByZero,
-    ///Can't divide a number by a smaller one, since it will lead to a value outside of [0,1] in
+    ///Can't divide a number by a smaller one, since it will lead to a value outside of \[0,1\] in
     ///prob space.
     NumeratorBiggerThanDenominator,
 }

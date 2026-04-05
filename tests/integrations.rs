@@ -1,5 +1,5 @@
 use anyhow::Result;
-use logprob::{LogProb, LogProbSubtractionError, LogSumExp};
+use logprob::{LogProb, LogSumExp};
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
@@ -79,27 +79,31 @@ fn addition() -> Result<()> {
 #[test]
 fn subtraction() -> Result<()> {
     let x = LogProb::new(-3.0)? - LogProb::new(-2.0)?;
-    assert_eq!(x, Ok(LogProb::new(-1.0)?));
+    assert_eq!(x, LogProb::new(-1.0).unwrap());
 
     let x = LogProb::new(-0.0)? - LogProb::new(0.0)?;
-    assert_eq!(x, Ok(LogProb::new(0.0)?));
+    assert_eq!(x, LogProb::new(0.0).unwrap());
 
     let x = LogProb::new(-4.0)? - LogProb::new(-4.0)?;
-    assert_eq!(x, Ok(LogProb::new(0.0)?));
-
-    let x = LogProb::new(-3.0)? - LogProb::new(-4.0)?;
-    assert_eq!(
-        x,
-        Err(LogProbSubtractionError::NumeratorBiggerThanDenominator)
-    );
+    assert_eq!(x, LogProb::new(0.0).unwrap());
 
     // 0 / anything = 0
     let x = LogProb::new(f32::NEG_INFINITY)? - LogProb::new(-1.234)?;
-    assert_eq!(x, Ok(LogProb::prob_of_zero()));
+    assert_eq!(x, LogProb::prob_of_zero());
 
-    let x = LogProb::new(f32::NEG_INFINITY)? - LogProb::new(f32::NEG_INFINITY)?;
-    assert_eq!(x, Err(LogProbSubtractionError::DivideByZero));
     Ok(())
+}
+
+#[test]
+#[should_panic]
+fn numerator_too_big() {
+    let _ = LogProb::new(-3.0).unwrap() - LogProb::new(-4.0).unwrap();
+}
+
+#[test]
+#[should_panic]
+fn divied_by_zero() {
+    let _ = LogProb::new(f32::NEG_INFINITY).unwrap() - LogProb::new(f32::NEG_INFINITY).unwrap();
 }
 
 #[test]

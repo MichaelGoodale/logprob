@@ -130,6 +130,27 @@ pub use softmax::{softmax, Softmax};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 ///Struct that can only hold float values that correspond to negative log
 ///probabilities.
+///
+///## Subtraction and Addition
+///[`LogProb`] implements both [`Add`](core::ops::Add) and [`Sub`](core::ops::Sub) to represent multiplication and divisions of
+///probabilities respectively.
+///
+///[`Sub`](core::ops::Sub) can panic if the denominator is negative infinity (as this is division by zero) or if
+///the numerator is greater than the denominator (as this would lead to a number greater than 1.0
+///in probability space).
+///
+///Both of these will panic.
+///```should_panic
+///# use logprob::LogProb;
+///let _ = LogProb::new(f32::NEG_INFINITY).unwrap() - LogProb::new(f32::NEG_INFINITY).unwrap();
+///```
+///
+///```should_panic
+///# use logprob::LogProb;
+///let _ = LogProb::new(-3.0).unwrap() - LogProb::new(-4.0).unwrap();
+///```
+///
+///
 #[repr(transparent)]
 pub struct LogProb<T>(T);
 pub use adding::{log_sum_exp, log_sum_exp_clamped, log_sum_exp_float, LogSumExp};
