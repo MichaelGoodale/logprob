@@ -194,7 +194,6 @@ impl<T: Float> LogProb<T> {
     ///0.0 if the numerator is greater than the denominator and a value of negative infinity is the
     ///denominator is negative infinity.
     ///
-    ///
     ///```
     ///# use logprob::LogProb;
     ///# fn main() -> anyhow::Result<()> {
@@ -221,6 +220,36 @@ impl<T: Float> LogProb<T> {
                 LogProb(x)
             }
         }
+    }
+
+    ///Subtracts two [`LogProb`]s (equivalent to division in prob-space).
+    ///
+    ///Does not check if the [`LogProb`] result is valid so can be used in performance critical context
+    ///carefully
+    ///
+    ///# Safety
+    ///This subtraction method *does not* check for correctness, so it can lead to invalid [`LogProb`]s
+    ///It should only be used when you are certain `rhs` < `self`  and when you are certain `rhs` is
+    ///not negative infinity.
+    ///```
+    ///# use logprob::LogProb;
+    ///# fn main() -> anyhow::Result<()> {
+    ///unsafe{
+    ///    let x = LogProb::new(-3.0)?.unchecked_sub(LogProb::new(-2.0)?);
+    ///    assert_eq!(x, LogProb::new(-1.0)?);
+    ///    let x = LogProb::new(-2.0)?.unchecked_sub(LogProb::new(-3.0)?);
+    ///    assert_eq!(x.into_inner(), 1.0); //This is a corrupted LogProb!
+    ///    let x = LogProb::new(-2.0)?.unchecked_sub(LogProb::prob_of_zero());
+    ///    assert_eq!(x.into_inner(), f64::INFINITY); //This is a corrupted LogProb!
+    ///    let x: LogProb<f64> = LogProb::prob_of_zero().unchecked_sub(LogProb::prob_of_zero());
+    ///    assert!(x.into_inner().is_nan()); //This is a corrupted LogProb!
+    ///}
+    ///# Ok(())
+    ///# }
+    ///```
+    #[must_use]
+    pub unsafe fn unchecked_sub(&self, rhs: LogProb<T>) -> LogProb<T> {
+        LogProb(self.0 - rhs.0)
     }
 }
 

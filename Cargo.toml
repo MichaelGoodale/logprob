@@ -46,3 +46,7 @@ serde = ["dep:serde", "std"]
 [[bench]]
 name = "allocating_log_sum_exp"
 harness = false
+
+[[bench]]
+name = "math_ops"
+harness = false
