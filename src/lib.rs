@@ -139,7 +139,7 @@ pub use softmax::{softmax, Softmax};
 ///the numerator is greater than the denominator (as this would lead to a number greater than 1.0
 ///in probability space).
 ///
-///Both of these will panic.
+///Both of these will panic in debug mode, while in release they will silenty saturate (see [`LogProb::saturating_sub`] for details).
 ///```should_panic
 ///# use logprob::LogProb;
 ///let _ = LogProb::new(f32::NEG_INFINITY).unwrap() - LogProb::new(f32::NEG_INFINITY).unwrap();

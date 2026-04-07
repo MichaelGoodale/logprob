@@ -68,41 +68,42 @@ impl<'a, T: AddAssign<&'a T>> AddAssign<&'a Self> for LogProb<T> {
 impl<T: Sub + Float + SubAssign> SubAssign for LogProb<T> {
     #[inline]
     fn sub_assign(&mut self, other: Self) {
-        assert!(*self <= other, "Numerator is greater than denominator");
-        assert!(other.0.is_finite(), "Division by zero in prob space");
-        self.0 -= other.0;
+        debug_assert!(*self <= other, "Numerator is greater than denominator");
+        debug_assert!(other.0.is_finite(), "Division by zero in prob space");
+        *self = self.saturating_sub(other);
     }
 }
 
 impl<'a, T: Sub + Float + SubAssign<T>> SubAssign<&'a Self> for LogProb<T> {
     #[inline]
     fn sub_assign(&mut self, other: &'a Self) {
-        assert!(*self <= *other, "Numerator is greater than denominator");
-        assert!(other.0.is_finite(), "Division by zero in prob space");
-        self.0 -= other.0;
+        debug_assert!(*self <= *other, "Numerator is greater than denominator");
+        debug_assert!(other.0.is_finite(), "Division by zero in prob space");
+        *self = self.saturating_sub(*other);
     }
 }
 
 impl<T: Sub + Float> Sub for LogProb<T> {
     type Output = LogProb<<T as Sub>::Output>;
 
+    #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
-        assert!(self <= rhs, "Numerator is greater than denominator");
-        assert!(rhs.0.is_finite(), "Division by zero in prob space");
-        LogProb(self.0 - rhs.0)
+        debug_assert!(self <= rhs, "Numerator is greater than denominator");
+        debug_assert!(rhs.0.is_finite(), "Division by zero in prob space");
+        self.saturating_sub(rhs)
     }
 }
 impl<'a, T> Sub<&'a Self> for LogProb<T>
 where
     T: Sub<&'a T> + Float,
 {
-    type Output = LogProb<<T as Sub<&'a T>>::Output>;
+    type Output = LogProb<T>;
 
     #[inline]
     fn sub(self, rhs: &'a Self) -> Self::Output {
-        assert!(self <= *rhs, "Numerator is greater than denominator");
-        assert!(rhs.0.is_finite(), "Division by zero in prob space");
-        LogProb(self.0.sub(&rhs.0))
+        debug_assert!(self <= *rhs, "Numerator is greater than denominator");
+        debug_assert!(rhs.0.is_finite(), "Division by zero in prob space");
+        self.saturating_sub(*rhs)
     }
 }
 
@@ -115,9 +116,9 @@ where
 
     #[inline]
     fn sub(self, rhs: LogProb<T>) -> Self::Output {
-        assert!(*self <= rhs, "Numerator is greater than denominator");
-        assert!(rhs.0.is_finite(), "Division by zero in prob space");
-        LogProb(self.0.sub(rhs.0))
+        debug_assert!(*self <= rhs, "Numerator is greater than denominator");
+        debug_assert!(rhs.0.is_finite(), "Division by zero in prob space");
+        self.saturating_sub(rhs)
     }
 }
 
@@ -130,10 +131,9 @@ where
 
     #[inline]
     fn sub(self, rhs: &'b LogProb<T>) -> Self::Output {
-        assert!(self <= rhs, "Numerator is greater than denominator");
-        assert!(rhs.0.is_finite(), "Division by zero in prob space");
-
-        LogProb(self.0.sub(rhs.0))
+        debug_assert!(self <= rhs, "Numerator is greater than denominator");
+        debug_assert!(rhs.0.is_finite(), "Division by zero in prob space");
+        self.saturating_sub(*rhs)
     }
 }
 
@@ -157,6 +157,7 @@ impl<T: Float> LogProb<T> {
     ///# Errors
     /// - [`LogProbSubtractionError::NumeratorBiggerThanDenominator`] if `self > rhs`
     /// - [`LogProbSubtractionError::DivideByZero`] if `rhs` is negative infinity
+    #[inline]
     pub fn try_sub(&self, rhs: LogProb<T>) -> Result<LogProb<T>, LogProbSubtractionError> {
         if *self > rhs {
             Err(LogProbSubtractionError::NumeratorBiggerThanDenominator)
@@ -182,6 +183,7 @@ impl<T: Float> LogProb<T> {
     ///# Ok(())
     ///# }
     ///```
+    #[inline]
     pub fn checked_sub(&self, rhs: LogProb<T>) -> Option<LogProb<T>> {
         if *self > rhs || !rhs.0.is_finite() {
             None
@@ -209,17 +211,10 @@ impl<T: Float> LogProb<T> {
     ///# }
     ///```
     #[must_use]
+    #[inline]
     pub fn saturating_sub(&self, rhs: LogProb<T>) -> LogProb<T> {
-        if self.0.is_infinite() && rhs.0.is_infinite() {
-            LogProb(T::zero())
-        } else {
-            let x = self.0 - rhs.0;
-            if x > T::zero() {
-                LogProb(T::zero())
-            } else {
-                LogProb(x)
-            }
-        }
+        //This saturates because `f64:NAN.min(0.0)=0.0` and `f32:NAN.min(0.0)=0.0`
+        LogProb((self.0 - rhs.0).min(T::zero()))
     }
 
     ///Subtracts two [`LogProb`]s (equivalent to division in prob-space).
@@ -248,6 +243,7 @@ impl<T: Float> LogProb<T> {
     ///# }
     ///```
     #[must_use]
+    #[inline]
     pub unsafe fn unchecked_sub(&self, rhs: LogProb<T>) -> LogProb<T> {
         LogProb(self.0 - rhs.0)
     }

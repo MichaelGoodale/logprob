@@ -31,7 +31,7 @@ impl<T: Float + Ln2> LogProb<T> {
             x + T::LN_2
         }
     }
-    /// Adds `[LogProb]` as raw probabilities and return the new log probability.
+    /// Adds [`LogProb`] as raw probabilities and return the new log probability.
     ///
     ///# Errors
     ///Returns [`ProbabilitiesSumToGreaterThanOne`] if the sum is too big (in probability space) to be represented as a `LogProb` (i.e. if it is greater than 1 in probability space or 0 in log space)
