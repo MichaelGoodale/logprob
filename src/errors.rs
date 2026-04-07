@@ -40,3 +40,30 @@ impl core::fmt::Display for FloatIsNanOrPositiveInfinity {
         write!(f, "LogProb constructed with positive or NaN value")
     }
 }
+
+/// Errors for when subtracting two log probabilities
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum LogProbSubtractionError {
+    ///Can't divide by zero (or subtract negative infinity)
+    DivideByZero,
+    ///Can't divide a number by a smaller one, since it will lead to a value outside of \[0,1\] in
+    ///prob space.
+    NumeratorBiggerThanDenominator,
+}
+
+impl Error for LogProbSubtractionError {}
+
+impl core::fmt::Display for LogProbSubtractionError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            LogProbSubtractionError::DivideByZero => write!(
+                f,
+                "Subtracting negative infinity is equivalent to dividing by zero"
+            ),
+            LogProbSubtractionError::NumeratorBiggerThanDenominator => write!(
+                f,
+                "Dividng when the numerator is bigger than the denominator leads to a value greater than 1"
+            ),
+        }
+    }
+}

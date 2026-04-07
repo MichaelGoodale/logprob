@@ -1,5 +1,9 @@
+use num_traits::Float;
+
+use crate::errors::LogProbSubtractionError;
+
 use super::LogProb;
-use core::ops::{Add, AddAssign, Mul};
+use core::ops::{Add, AddAssign, Mul, Sub, SubAssign};
 
 impl<T: Add> Add for LogProb<T> {
     type Output = LogProb<T::Output>;
@@ -58,6 +62,190 @@ impl<'a, T: AddAssign<&'a T>> AddAssign<&'a Self> for LogProb<T> {
     #[inline]
     fn add_assign(&mut self, other: &'a Self) {
         (self.0).add_assign(&other.0);
+    }
+}
+
+impl<T: Sub + Float + SubAssign> SubAssign for LogProb<T> {
+    #[inline]
+    fn sub_assign(&mut self, other: Self) {
+        debug_assert!(*self <= other, "Numerator is greater than denominator");
+        debug_assert!(other.0.is_finite(), "Division by zero in prob space");
+        *self = self.saturating_sub(other);
+    }
+}
+
+impl<'a, T: Sub + Float + SubAssign<T>> SubAssign<&'a Self> for LogProb<T> {
+    #[inline]
+    fn sub_assign(&mut self, other: &'a Self) {
+        debug_assert!(*self <= *other, "Numerator is greater than denominator");
+        debug_assert!(other.0.is_finite(), "Division by zero in prob space");
+        *self = self.saturating_sub(*other);
+    }
+}
+
+impl<T: Sub + Float> Sub for LogProb<T> {
+    type Output = LogProb<<T as Sub>::Output>;
+
+    #[inline]
+    fn sub(self, rhs: Self) -> Self::Output {
+        debug_assert!(self <= rhs, "Numerator is greater than denominator");
+        debug_assert!(rhs.0.is_finite(), "Division by zero in prob space");
+        self.saturating_sub(rhs)
+    }
+}
+impl<'a, T> Sub<&'a Self> for LogProb<T>
+where
+    T: Sub<&'a T> + Float,
+{
+    type Output = LogProb<T>;
+
+    #[inline]
+    fn sub(self, rhs: &'a Self) -> Self::Output {
+        debug_assert!(self <= *rhs, "Numerator is greater than denominator");
+        debug_assert!(rhs.0.is_finite(), "Division by zero in prob space");
+        self.saturating_sub(*rhs)
+    }
+}
+
+impl<'a, T> Sub<LogProb<T>> for &'a LogProb<T>
+where
+    &'a T: Sub<T>,
+    T: Float,
+{
+    type Output = LogProb<T>;
+
+    #[inline]
+    fn sub(self, rhs: LogProb<T>) -> Self::Output {
+        debug_assert!(*self <= rhs, "Numerator is greater than denominator");
+        debug_assert!(rhs.0.is_finite(), "Division by zero in prob space");
+        self.saturating_sub(rhs)
+    }
+}
+
+impl<'a, 'b, T> Sub<&'b LogProb<T>> for &'a LogProb<T>
+where
+    &'a T: Sub<T>,
+    T: Copy + Float,
+{
+    type Output = LogProb<T>;
+
+    #[inline]
+    fn sub(self, rhs: &'b LogProb<T>) -> Self::Output {
+        debug_assert!(self <= rhs, "Numerator is greater than denominator");
+        debug_assert!(rhs.0.is_finite(), "Division by zero in prob space");
+        self.saturating_sub(*rhs)
+    }
+}
+
+impl<T: Float> LogProb<T> {
+    ///Subtracts two [`LogProb`]s (equivalent to division in prob-space) and returns [`LogProbSubtractionError`] if the
+    ///resulting value isn't a valid [`LogProb`].
+    ///```
+    ///# use logprob::{LogProb, LogProbSubtractionError};
+    ///# fn main() -> anyhow::Result<()> {
+    ///let x = LogProb::new(-3.0)?.try_sub(LogProb::new(-2.0)?);
+    ///assert_eq!(x, Ok(LogProb::new(-1.0)?));
+    ///let x = LogProb::new(-2.0)?.try_sub(LogProb::new(-3.0)?);
+    ///assert_eq!(x, Err(LogProbSubtractionError::NumeratorBiggerThanDenominator));
+    ///let x = LogProb::new(-2.0)?.try_sub(LogProb::prob_of_zero());
+    ///assert_eq!(x, Err(LogProbSubtractionError::NumeratorBiggerThanDenominator));
+    ///let x = LogProb::<f32>::prob_of_zero().try_sub(LogProb::prob_of_zero());
+    //assert_eq!(x, Err(LogProbSubtractionError::DivideByZero));
+    ///# Ok(())
+    ///# }
+    ///```
+    ///# Errors
+    /// - [`LogProbSubtractionError::NumeratorBiggerThanDenominator`] if `self > rhs`
+    /// - [`LogProbSubtractionError::DivideByZero`] if `rhs` is negative infinity
+    #[inline]
+    pub fn try_sub(&self, rhs: LogProb<T>) -> Result<LogProb<T>, LogProbSubtractionError> {
+        if *self > rhs {
+            Err(LogProbSubtractionError::NumeratorBiggerThanDenominator)
+        } else if !rhs.0.is_finite() {
+            Err(LogProbSubtractionError::DivideByZero)
+        } else {
+            Ok(LogProb(self.0.sub(rhs.0)))
+        }
+    }
+
+    ///Subtracts two [`LogProb`]s (equivalent to division in prob-space) and returns [`None`] if the
+    ///resulting value isn't a valid [`LogProb`].
+    ///
+    ///```
+    ///# use logprob::LogProb;
+    ///# fn main() -> anyhow::Result<()> {
+    ///let x = LogProb::new(-3.0)?.checked_sub(LogProb::new(-2.0)?);
+    ///assert_eq!(x, Some(LogProb::new(-1.0)?));
+    ///let x = LogProb::new(-2.0)?.checked_sub(LogProb::new(-3.0)?);
+    ///assert_eq!(x, None);
+    ///let x = LogProb::new(-2.0)?.checked_sub(LogProb::prob_of_zero());
+    ///assert_eq!(x, None);
+    ///# Ok(())
+    ///# }
+    ///```
+    #[inline]
+    pub fn checked_sub(&self, rhs: LogProb<T>) -> Option<LogProb<T>> {
+        if *self > rhs || !rhs.0.is_finite() {
+            None
+        } else {
+            Some(LogProb(self.0.sub(rhs.0)))
+        }
+    }
+
+    ///Subtracts two [`LogProb`]s (equivalent to division in prob-space) and returns a [`LogProb`] of
+    ///0.0 if the numerator is greater than the denominator and a value of negative infinity is the
+    ///denominator is negative infinity.
+    ///
+    ///```
+    ///# use logprob::LogProb;
+    ///# fn main() -> anyhow::Result<()> {
+    ///let x = LogProb::new(-3.0)?.saturating_sub(LogProb::new(-2.0)?);
+    ///assert_eq!(x, LogProb::new(-1.0)?);
+    ///let x = LogProb::new(-2.0)?.saturating_sub(LogProb::new(-3.0)?);
+    ///assert_eq!(x, LogProb::new(0.0)?);
+    ///let x = LogProb::new(-2.0)?.saturating_sub(LogProb::prob_of_zero());
+    ///assert_eq!(x, LogProb::new(0.0)?);
+    ///let x = LogProb::prob_of_zero().saturating_sub(LogProb::prob_of_zero());
+    ///assert_eq!(x, LogProb::new(0.0)?);
+    ///# Ok(())
+    ///# }
+    ///```
+    #[must_use]
+    #[inline]
+    pub fn saturating_sub(&self, rhs: LogProb<T>) -> LogProb<T> {
+        //This saturates because `f64:NAN.min(0.0)=0.0` and `f32:NAN.min(0.0)=0.0`
+        LogProb((self.0 - rhs.0).min(T::zero()))
+    }
+
+    ///Subtracts two [`LogProb`]s (equivalent to division in prob-space).
+    ///
+    ///Does not check if the [`LogProb`] result is valid so can be used in performance critical context
+    ///carefully
+    ///
+    ///# Safety
+    ///This subtraction method *does not* check for correctness, so it can lead to invalid [`LogProb`]s
+    ///It should only be used when you are certain `rhs` < `self`  and when you are certain `rhs` is
+    ///not negative infinity.
+    ///```
+    ///# use logprob::LogProb;
+    ///# fn main() -> anyhow::Result<()> {
+    ///unsafe{
+    ///    let x = LogProb::new(-3.0)?.unchecked_sub(LogProb::new(-2.0)?);
+    ///    assert_eq!(x, LogProb::new(-1.0)?);
+    ///    let x = LogProb::new(-2.0)?.unchecked_sub(LogProb::new(-3.0)?);
+    ///    assert_eq!(x.into_inner(), 1.0); //This is a corrupted LogProb!
+    ///    let x = LogProb::new(-2.0)?.unchecked_sub(LogProb::prob_of_zero());
+    ///    assert_eq!(x.into_inner(), f64::INFINITY); //This is a corrupted LogProb!
+    ///    let x: LogProb<f64> = LogProb::prob_of_zero().unchecked_sub(LogProb::prob_of_zero());
+    ///    assert!(x.into_inner().is_nan()); //This is a corrupted LogProb!
+    ///}
+    ///# Ok(())
+    ///# }
+    ///```
+    #[must_use]
+    #[inline]
+    pub unsafe fn unchecked_sub(&self, rhs: LogProb<T>) -> LogProb<T> {
+        LogProb(self.0 - rhs.0)
     }
 }
 
