@@ -124,7 +124,7 @@ mod math;
 mod softmax;
 
 #[cfg(feature = "alloc")]
-pub use softmax::{softmax, Softmax};
+pub use softmax::{Softmax, softmax};
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -181,7 +181,7 @@ pub use softmax::{softmax, Softmax};
 /// ```
 #[repr(transparent)]
 pub struct LogProb<T>(T);
-pub use adding::{log_sum_exp, log_sum_exp_clamped, log_sum_exp_float, LogSumExp};
+pub use adding::{LogSumExp, log_sum_exp, log_sum_exp_clamped, log_sum_exp_float};
 
 impl<T: Float> LogProb<T> {
     ///Construct a new [`LogProb`] that is guaranteed to be negative (or +0.0).
